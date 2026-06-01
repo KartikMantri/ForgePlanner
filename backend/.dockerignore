@@ -1,0 +1,11 @@
+.git
+.gitignore
+__pycache__
+*.pyc
+.pytest_cache
+.venv
+.tmpenv
+.tmpenv311
+*.egg-info
+.DS_Store
+node_modules
