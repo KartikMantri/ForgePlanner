@@ -1,16 +1,16 @@
-FROM python:3.11
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies for packages that may need compilation
+# Install minimal dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install dependencies (with prebuilt wheels)
+# Copy requirements and install dependencies (force binary wheels only)
 COPY requirements.txt .
-RUN pip install --upgrade pip setuptools wheel && \
-    pip install --prefer-binary -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --only-binary :all: -r requirements.txt
 
 # Copy application code
 COPY . .
