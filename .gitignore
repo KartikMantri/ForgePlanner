@@ -1,0 +1,8 @@
+# Design and Resources
+.kiro/
+*.docx
+read_docx.ps1
+
+# Environments
+.env
+.env.*

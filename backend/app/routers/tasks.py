@@ -1,0 +1,106 @@
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+from app.database.client import get_supabase_client
+
+router = APIRouter(prefix="/api/v1/tasks", tags=["tasks"])
+
+
+def get_current_user_id() -> str:
+    return "00000000-0000-0000-0000-000000000001"
+
+
+class TaskCreate(BaseModel):
+    title: str
+    goal_id: str
+    milestone_id: Optional[str] = None
+    xp_value: int = 10
+
+
+class TaskUpdate(BaseModel):
+    status: Optional[str] = None
+    title: Optional[str] = None
+
+
+@router.get("")
+async def list_tasks(goal_id: str, user_id: str = Depends(get_current_user_id)):
+    """Fetch all tasks for a goal by joining through milestones."""
+    db = get_supabase_client()
+    try:
+        milestones = db.table("milestones").select("id").eq("goal_id", goal_id).execute()
+        if not milestones.data:
+            return []
+        milestone_ids = [m["id"] for m in milestones.data]
+        tasks = db.table("tasks").select("*").in_("milestone_id", milestone_ids).order("created_at").execute()
+        return tasks.data or []
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("")
+async def create_task(data: TaskCreate, user_id: str = Depends(get_current_user_id)):
+    """Create a task. Auto-attaches to the first milestone; creates one if none exist."""
+    db = get_supabase_client()
+    try:
+        milestone_id = data.milestone_id
+        if not milestone_id:
+            ms = db.table("milestones").select("id").eq("goal_id", data.goal_id).limit(1).execute()
+            if ms.data:
+                milestone_id = ms.data[0]["id"]
+            else:
+                # Create a default "Daily Tasks" milestone so the task has a home
+                new_ms = db.table("milestones").insert({
+                    "goal_id": data.goal_id,
+                    "title": "Daily Tasks",
+                    "target_date": "2026-12-31",
+                    "status": "in_progress"
+                }).execute()
+                milestone_id = new_ms.data[0]["id"]
+
+        res = db.table("tasks").insert({
+            "milestone_id": milestone_id,
+            "title": data.title,
+            "status": "pending",
+            "xp_value": data.xp_value
+        }).execute()
+        return res.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/{task_id}")
+async def update_task(task_id: str, data: TaskUpdate):
+    """Update a task's status or title."""
+    db = get_supabase_client()
+    try:
+        update_data: dict = {}
+        if data.status is not None:
+            update_data["status"] = data.status
+            if data.status == "completed":
+                update_data["completed_at"] = datetime.utcnow().isoformat()
+            else:
+                update_data["completed_at"] = None
+        if data.title is not None:
+            update_data["title"] = data.title
+
+        res = db.table("tasks").update(update_data).eq("id", task_id).execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Task not found")
+        return res.data[0]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/{task_id}")
+async def delete_task(task_id: str):
+    """Delete a task."""
+    db = get_supabase_client()
+    try:
+        db.table("tasks").delete().eq("id", task_id).execute()
+        return {"ok": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
