@@ -257,3 +257,59 @@
 .task-pow {
   animation: pow-burst 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+/* ── Mobile & Touch Optimizations ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+  
+  /* Larger touch targets on mobile (48px minimum) */
+  button, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better spacing for small screens */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Touch device improvements */
+@supports (hover: hover) {
+  /* Only apply hover effects on non-touch devices */
+  @media (hover: hover) {
+    button:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* Prevent zooming on mobile input focus */
+@media (max-width: 640px) {
+  input, textarea, select {
+    font-size: 16px;
+  }
+}
+
+/* Smooth scrolling for mobile */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better visual feedback for touch */
+button, input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area padding for notched devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

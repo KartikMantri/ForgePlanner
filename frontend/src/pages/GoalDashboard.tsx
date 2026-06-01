@@ -67,41 +67,41 @@ const PlannerTab = ({ goal, onUpdate }: { goal: any, onUpdate: () => void }) => 
   };
 
   return (
-    <div className="p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-3 sm:p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
         <div>
-          <h2 className="text-4xl font-military font-black text-white uppercase text-shadow-comic mb-1 tracking-wider">ROADMAP</h2>
-          <p className="text-white/60 text-sm font-display tracking-widest">WEB OF MILESTONES.</p>
+          <h2 className="text-2xl sm:text-4xl font-military font-black text-white uppercase text-shadow-comic mb-1 tracking-wider">ROADMAP</h2>
+          <p className="text-white/60 text-xs sm:text-sm font-display tracking-widest hidden sm:block">WEB OF MILESTONES.</p>
         </div>
         <button 
           onClick={() => setIsAdding(true)}
-          className="px-4 py-2 bg-[var(--color-spider-red)] text-white border-2 border-black rounded shadow-[2px_2px_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all font-black uppercase text-sm flex items-center gap-2"
+          className="px-3 sm:px-4 py-2 bg-[var(--color-spider-red)] text-white border-2 border-black rounded shadow-[2px_2px_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all font-black uppercase text-xs sm:text-sm flex items-center gap-1 sm:gap-2 active:scale-95 flex-shrink-0"
         >
-          <Plus className="w-4 h-4" /> Add Node
+          <Plus className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Add Node</span>
         </button>
       </div>
 
       {isAdding && (
-        <div className="spider-panel p-5 mb-6 animate-in slide-in-from-top-2 border-4 border-black">
-          <h3 className="font-military font-black uppercase text-xl mb-4">New Web Node</h3>
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="spider-panel p-3 sm:p-5 mb-4 sm:mb-6 animate-in slide-in-from-top-2 border-4 border-black">
+          <h3 className="font-military font-black uppercase text-base sm:text-xl mb-3 sm:mb-4">New Web Node</h3>
+          <div className="flex flex-col gap-3">
             <input 
               type="text" 
               value={newTitle} 
               onChange={e => setNewTitle(e.target.value)} 
-              placeholder="Milestone title..."
-              className="flex-1 px-4 py-2 bg-white/5 border-2 border-white/20 rounded focus:border-[var(--color-spider-red)] focus:outline-none text-white font-display"
+              placeholder="Title..."
+              className="flex-1 px-3 sm:px-4 py-2 bg-white/5 border-2 border-white/20 rounded focus:border-[var(--color-spider-red)] focus:outline-none text-white font-display text-sm"
               autoFocus
             />
             <input 
               type="date" 
               value={newDate} 
               onChange={e => setNewDate(e.target.value)}
-              className="sm:w-48 px-4 py-2 bg-white/5 border-2 border-white/20 rounded focus:border-[var(--color-spider-red)] focus:outline-none text-white/80 font-display"
+              className="px-3 sm:px-4 py-2 bg-white/5 border-2 border-white/20 rounded focus:border-[var(--color-spider-red)] focus:outline-none text-white/80 font-display text-sm"
             />
-            <div className="flex gap-2">
-              <button onClick={() => setIsAdding(false)} className="px-4 py-2 border-2 border-white/20 text-white/60 rounded hover:bg-white/10 font-black uppercase transition-colors">Cancel</button>
-              <button onClick={handleAdd} disabled={saving} className="px-6 py-2 bg-[var(--color-spider-red)] text-white border-2 border-black rounded shadow-[2px_2px_0_rgba(0,0,0,1)] hover:shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all font-black uppercase flex items-center justify-center min-w-[100px]">
+            <div className="flex gap-2 flex-col sm:flex-row">
+              <button onClick={() => setIsAdding(false)} className="px-3 sm:px-4 py-2 border-2 border-white/20 text-white/60 rounded hover:bg-white/10 font-black uppercase transition-colors text-xs sm:text-sm flex-1 sm:flex-none">Cancel</button>
+              <button onClick={handleAdd} disabled={saving} className="px-4 sm:px-6 py-2 bg-[var(--color-spider-red)] text-white border-2 border-black rounded shadow-[2px_2px_0_rgba(0,0,0,1)] hover:shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all font-black uppercase flex items-center justify-center text-xs sm:text-sm flex-1 sm:flex-none active:scale-95">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
               </button>
             </div>
@@ -235,10 +235,10 @@ const TasksTab = ({ goalId }: { goalId: string }) => {
   const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
 
   return (
-    <div className="p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
-      <div className="mb-8">
-        <h2 className="text-5xl font-military font-black text-white uppercase text-shadow-comic mb-1 tracking-wider">DAILY MISSIONS</h2>
-        <p className="text-[var(--color-spider-red)] font-display text-sm font-bold tracking-widest">GET IT DONE.</p>
+    <div className="p-3 sm:p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-5xl font-military font-black text-white uppercase text-shadow-comic mb-1 tracking-wider">DAILY MISSIONS</h2>
+        <p className="text-[var(--color-spider-red)] font-display text-xs sm:text-sm font-bold tracking-widest hidden sm:block">GET IT DONE.</p>
       </div>
 
       {/* Comic-style Progress bar */}
@@ -262,21 +262,21 @@ const TasksTab = ({ goalId }: { goalId: string }) => {
       </div>
 
       {/* Add task */}
-      <form onSubmit={addTask} className="flex gap-3 mb-8">
+      <form onSubmit={addTask} className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-6 sm:mb-8 p-3 sm:p-0">
         <input
           type="text"
           value={newTask}
           onChange={e => setNewTask(e.target.value)}
           placeholder="What's the next move?"
-          className="flex-1 px-5 py-3 bg-white text-black border-4 border-black rounded-none font-military font-bold text-lg focus:outline-none focus:ring-4 focus:ring-[var(--color-spider-red)]/50 shadow-[4px_4px_0_rgba(0,0,0,1)] placeholder:text-black/40"
+          className="flex-1 px-3 sm:px-5 py-2 sm:py-3 bg-white text-black border-4 border-black rounded-none font-military font-bold text-sm sm:text-lg focus:outline-none focus:ring-4 focus:ring-[var(--color-spider-red)]/50 shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)] placeholder:text-black/40 min-w-0"
         />
         <button
           type="submit"
           disabled={saving === 'new'}
-          className="px-6 py-3 bg-[var(--color-spider-red)] text-white border-4 border-black font-military font-black text-xl uppercase hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_rgba(0,0,0,1)] shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all flex items-center gap-2 disabled:opacity-50 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_rgba(0,0,0,1)]"
+          className="px-4 sm:px-6 py-2 sm:py-3 bg-[var(--color-spider-red)] text-white border-4 border-black font-military font-black text-sm sm:text-xl uppercase hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_rgba(0,0,0,1)] shadow-[2px_2px_0_rgba(0,0,0,1)] sm:shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1 sm:gap-2 disabled:opacity-50 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_rgba(0,0,0,1)] active:scale-95 sm:active:scale-100 flex-shrink-0 min-w-16 sm:min-w-fit"
         >
-          {saving === 'new' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-6 h-6 stroke-[3]" />}
-          ADD
+          {saving === 'new' ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Plus className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />}
+          <span className="hidden sm:inline">ADD</span>
         </button>
       </form>
 
@@ -638,78 +638,46 @@ export default function GoalDashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(204,0,0,0.05)_2px,transparent_2px)] [background-size:16px_16px] pointer-events-none z-0"></div>
         
         {/* Header - Stark/Spider Tech Theme */}
-        <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-md border-b border-[var(--color-spider-red)]/50 shadow-[0_5px_30px_rgba(204,0,0,0.25)] relative px-6 py-4 flex items-center justify-between overflow-hidden">
-          {/* Tech grid overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(204,0,0,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(204,0,0,0.15)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black pointer-events-none z-0"></div>
-          
-          <div className="flex items-center gap-4 relative z-10">
-            <button
-              onClick={() => navigate('/')}
-              className="p-2 hover:bg-[var(--color-spider-red)]/20 rounded-full transition-colors text-white border border-transparent hover:border-[var(--color-spider-red)]/50"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className="w-10 h-10 border border-[var(--color-spider-red)] rounded-full flex items-center justify-center transition-colors relative overflow-hidden group-hover:shadow-[0_0_15px_rgba(204,0,0,0.8)] ml-2">
-              <img src="/forge-logo.png" alt="Forge Logo" className="w-full h-full object-cover rounded-full" />
-            </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-sm text-xs font-black uppercase bg-black text-white border-2 border-black shadow-[2px_2px_0_rgba(255,255,255,0.5)]">
-                {goal?.category ?? 'Goal'}
-              </span>
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            </div>
-            <h1 className="text-2xl font-black font-military text-white uppercase text-shadow-comic tracking-tight">
-              {goalLoading ? 'Loading...' : (goal?.title ?? 'My Goal')}
-            </h1>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="text-right mr-2 hidden sm:block">
-            <div className="text-xs text-white/60">Health Score</div>
-            <div className={`text-xl font-black ${healthColor}`}>{healthScore}%</div>
-          </div>
+        <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-md border-b border-[var(--color-spider-red)]/50 shadow-[0_5px_30px_rgba(204,0,0,0.25)] relative px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between overflow-hidden overflow-x-auto\">\n          {/* Tech grid overlay */}\n          <div className=\"absolute inset-0 bg-[linear-gradient(rgba(204,0,0,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(204,0,0,0.15)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0\"></div>\n          <div className=\"absolute inset-0 bg-gradient-to-r from-black via-transparent to-black pointer-events-none z-0\"></div>\n          \n          <div className=\"flex items-center gap-2 sm:gap-4 relative z-10 min-w-0\">\n            <button\n              onClick={() => navigate('/')}\n              className=\"p-1.5 sm:p-2 hover:bg-[var(--color-spider-red)]/20 rounded-full transition-colors text-white border border-transparent hover:border-[var(--color-spider-red)]/50 flex-shrink-0\"\n            >\n              <ArrowLeft className=\"w-4 h-4 sm:w-5 sm:h-5\" />\n            </button>\n            <div className=\"w-8 h-8 sm:w-10 sm:h-10 border border-[var(--color-spider-red)] rounded-full flex items-center justify-center transition-colors relative overflow-hidden group-hover:shadow-[0_0_15px_rgba(204,0,0,0.8)] flex-shrink-0\">\n              <img src=\"/forge-logo.png\" alt=\"Forge Logo\" className=\"w-full h-full object-cover rounded-full\" />\n            </div>\n          <div className=\"min-w-0 flex-1\">\n            <div className=\"flex items-center gap-1 sm:gap-2 flex-wrap\">\n              <span className=\"px-1.5 sm:px-2 py-0.5 rounded-sm text-[10px] sm:text-xs font-black uppercase bg-black text-white border-2 border-black shadow-[2px_2px_0_rgba(255,255,255,0.5)] flex-shrink-0\">\n                {goal?.category ?? 'Goal'}\n              </span>\n              <span className=\"w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0\" />\n            </div>\n            <h1 className=\"text-base sm:text-2xl font-black font-military text-white uppercase text-shadow-comic tracking-tight truncate\">\n              {goalLoading ? '...' : (goal?.title ?? 'My Goal')}\n            </h1>\n          </div>\n        </div>\n\n        <div className=\"flex items-center gap-2 sm:gap-3 flex-shrink-0\">\n          <div className=\"text-right mr-1 sm:mr-2 hidden sm:block\">\n            <div className=\"text-[10px] sm:text-xs text-white/60\">Health</div>\n            <div className={`text-base sm:text-xl font-black ${healthColor}`}>{healthScore}%</div>\n          </div>"
 
           {/* Three-dot menu */}
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(v => !v)}
               disabled={deleting}
-              className="p-2 hover:bg-muted rounded-full transition-colors disabled:opacity-50"
+              className="p-1.5 sm:p-2 hover:bg-muted rounded-full transition-colors disabled:opacity-50 active:scale-95 flex-shrink-0"
             >
               {deleting
-                ? <Loader2 className="w-5 h-5 animate-spin" />
-                : <MoreHorizontal className="w-5 h-5" />}
+                ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                : <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 top-full mt-2 w-52 glass border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
+              <div className="absolute right-0 top-full mt-2 w-48 sm:w-52 glass border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
                 <div className="p-1">
                   <button
                     onClick={() => { setShowMenu(false); fetchGoal(); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-muted transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg hover:bg-muted transition-colors text-left"
                   >
-                    <RefreshCw className="w-4 h-4 text-white/60" />
-                    Refresh goal data
+                    <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 text-white/60 flex-shrink-0" />
+                    <span>Refresh</span>
                   </button>
                   <button
                     onClick={() => { setShowMenu(false); navigate('/'); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-muted transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg hover:bg-muted transition-colors text-left"
                   >
-                    <ArrowLeft className="w-4 h-4 text-white/60" />
-                    Back to Home
+                    <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 text-white/60 flex-shrink-0" />
+                    <span>Home</span>
                   </button>
 
                   <div className="h-px bg-border mx-3 my-1" />
 
                   <button
                     onClick={() => { setShowMenu(false); handleDeleteGoal(); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-destructive/10 text-destructive transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-3 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg hover:bg-destructive/10 text-destructive transition-colors text-left"
                   >
-                    <Trash2 className="w-4 h-4" />
-                    Delete this goal
+                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span>Delete</span>
                   </button>
                 </div>
               </div>

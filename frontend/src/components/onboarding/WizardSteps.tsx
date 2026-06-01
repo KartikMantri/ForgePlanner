@@ -103,8 +103,8 @@ export const Step1Template = ({
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500 w-full relative">
       <div className="text-center mb-4 relative z-10">
-        <h2 className="text-3xl font-display font-bold text-[var(--color-arc-cyan)] tracking-widest uppercase filter drop-shadow-[0_0_10px_rgba(0,212,255,0.8)]">Select Operating Module</h2>
-        <p className="text-[var(--color-arc-cyan)]/70 font-display tracking-widest text-sm mt-2">INITIALIZING PROTOCOL ROADMAPS...</p>
+        <h2 className="text-xl sm:text-3xl font-display font-bold text-[var(--color-arc-cyan)] tracking-widest uppercase filter drop-shadow-[0_0_10px_rgba(0,212,255,0.8)]">Select Module</h2>
+        <p className="text-[var(--color-arc-cyan)]/70 font-display tracking-widest text-xs sm:text-sm mt-2 hidden sm:block">INITIALIZING PROTOCOL ROADMAPS...</p>
       </div>
 
       <div className={`transition-all duration-500 ${customizing ? 'opacity-30 pointer-events-none blur-sm' : ''}`}>
@@ -112,21 +112,21 @@ export const Step1Template = ({
       </div>
 
       {customizing && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center animate-in zoom-in-90 duration-300">
-          <div className="bg-black/90 border-2 border-[var(--color-arc-cyan)] p-8 rounded-xl shadow-[0_0_40px_rgba(0,212,255,0.3)] max-w-md w-full backdrop-blur-xl">
-            <h3 className="text-xl font-display font-bold text-[var(--color-arc-cyan)] mb-4 tracking-widest uppercase text-center">ENTER CUSTOM DESIGNATION</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center animate-in zoom-in-90 duration-300 p-4">
+          <div className="bg-black/90 border-2 border-[var(--color-arc-cyan)] p-4 sm:p-8 rounded-xl shadow-[0_0_40px_rgba(0,212,255,0.3)] max-w-md w-full backdrop-blur-xl">
+            <h3 className="text-base sm:text-xl font-display font-bold text-[var(--color-arc-cyan)] mb-4 tracking-widest uppercase text-center">CUSTOM GOAL</h3>
             <form onSubmit={handleCustomSubmit} className="space-y-4">
               <input
                 type="text"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
                 autoFocus
-                placeholder="e.g. Master React, Launch Startup..."
-                className="w-full bg-black/50 border border-[var(--color-arc-cyan)]/50 focus:border-[var(--color-arc-cyan)] text-white px-4 py-3 rounded-lg font-display tracking-wide outline-none placeholder:text-[var(--color-arc-cyan)]/30 text-center text-lg"
+                placeholder="e.g. Master React..."
+                className="w-full bg-black/50 border border-[var(--color-arc-cyan)]/50 focus:border-[var(--color-arc-cyan)] text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-display tracking-wide outline-none placeholder:text-[var(--color-arc-cyan)]/30 text-center text-sm sm:text-lg"
               />
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setCustomizing(null)} className="flex-1 py-3 bg-transparent border border-[var(--color-arc-cyan)]/30 text-[var(--color-arc-cyan)]/50 hover:text-[var(--color-arc-cyan)] hover:border-[var(--color-arc-cyan)] rounded-lg font-display tracking-widest uppercase transition-all">Cancel</button>
-                <button type="submit" disabled={!customName.trim()} className="flex-1 py-3 bg-[var(--color-arc-cyan)]/20 border border-[var(--color-arc-cyan)] text-[var(--color-arc-cyan)] hover:bg-[var(--color-arc-cyan)] hover:text-black disabled:opacity-50 rounded-lg font-display tracking-widest uppercase font-bold transition-all shadow-[0_0_15px_rgba(0,212,255,0.2)]">Confirm</button>
+              <div className="flex gap-2 sm:gap-3 pt-2">
+                <button type="button" onClick={() => setCustomizing(null)} className="flex-1 py-2 sm:py-3 bg-transparent border border-[var(--color-arc-cyan)]/30 text-[var(--color-arc-cyan)]/50 hover:text-[var(--color-arc-cyan)] hover:border-[var(--color-arc-cyan)] rounded-lg font-display tracking-widest uppercase transition-all text-xs sm:text-sm active:scale-95">Cancel</button>
+                <button type="submit" disabled={!customName.trim()} className="flex-1 py-2 sm:py-3 bg-[var(--color-arc-cyan)]/20 border border-[var(--color-arc-cyan)] text-[var(--color-arc-cyan)] hover:bg-[var(--color-arc-cyan)] hover:text-black disabled:opacity-50 rounded-lg font-display tracking-widest uppercase font-bold transition-all shadow-[0_0_15px_rgba(0,212,255,0.2)] text-xs sm:text-sm active:scale-95">Confirm</button>
               </div>
             </form>
           </div>
