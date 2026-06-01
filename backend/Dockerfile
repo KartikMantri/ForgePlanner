@@ -2,17 +2,12 @@ FROM python:3.11
 
 WORKDIR /app
 
-# Install build dependencies including Rust toolchain
+# Install system dependencies for packages that may need compilation
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Rust (required for pydantic-core compilation)
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-# Copy requirements and install dependencies
+# Copy requirements and install dependencies (with prebuilt wheels)
 COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel && \
     pip install --prefer-binary -r requirements.txt
