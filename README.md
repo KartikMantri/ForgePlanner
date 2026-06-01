@@ -1,4 +1,6 @@
-# 🔥 Forge
+![Forge Logo](frontend/public/forge-logo.png)
+
+# Forge
 
 A Marvel-inspired personal goal operating system with a bright React frontend and a flexible FastAPI backend.
 
@@ -155,6 +157,32 @@ Included routers:
 2. Define stronger data validation in `backend/app/schemas`
 3. Enhance UI components in `frontend/src/components`
 4. Extend the API client in `frontend/src/services/api.ts`
+
+---
+
+## 🚀 Deployment
+
+### Frontend on Vercel
+- Deploy the `frontend` directory as a Vercel project.
+- Set the environment variable `VITE_API_URL` to your deployed backend URL, for example:
+  - `https://forge-backend.onrender.com/api/v1`
+- If you want, use a custom domain and update `FRONTEND_URL` in the backend environment variables.
+
+### Backend on Render
+- This repository includes `render.yaml` to define a Render service for the backend.
+- Render will build from `backend/` and run:
+  - `pip install -r requirements.txt`
+  - `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- The backend service is configured in `render.yaml` with `root: backend`.
+- Use the Render dashboard to add environment variables from `backend/.env.example`.
+
+### Local deployment notes
+- Use `backend/.env.example` as a template and copy it to `backend/.env` for local development.
+- For production, set:
+  - `SUPABASE_URL`
+  - `SUPABASE_KEY`
+  - `FRONTEND_URL`
+  - `GEMINI_API_KEY` or `GROQ_API_KEY`
 
 ---
 

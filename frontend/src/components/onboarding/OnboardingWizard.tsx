@@ -32,8 +32,8 @@ export default function OnboardingWizard({ onComplete }: { onComplete: (id: stri
 
   const [template, setTemplate] = useState<GoalTemplate>(DEFAULT_TEMPLATE);
   const [contextText, setContextText] = useState<string>('');
-  // Track what resource was uploaded/scraped so we can save it after goal creation
-  const [onboardingResource, setOnboardingResource] = useState<OnboardingResource | null>(null);
+  // Track all resources added during onboarding so they can be attached to the goal
+  const [onboardingResources, setOnboardingResources] = useState<OnboardingResource[]>([]);
   const [availability, setAvailability] = useState({ hoursPerDay: 2, days: 5 });
   const [milestones, setMilestones] = useState<any[]>([
     { title: '', target_date: '' },
@@ -58,19 +58,21 @@ export default function OnboardingWizard({ onComplete }: { onComplete: (id: stri
       const res = await goalsApi.createGoal(data);
       const goalId = res.id;
 
-      // Save the onboarding resource to the resources table so it appears in the Resources tab
-      if (onboardingResource) {
-        try {
-          await resourcesApi.createResource(
-            goalId,
-            onboardingResource.filename,
-            onboardingResource.url,
-            onboardingResource.fileType,
-          );
-        } catch (e) {
-          console.warn('Could not save onboarding resource:', e);
-          // Non-fatal — goal is already created
-        }
+      // Save any onboarding resources to the resources table so they appear in the Resources tab
+      if (onboardingResources.length > 0) {
+        await Promise.all(onboardingResources.map(async (resource) => {
+          try {
+            await resourcesApi.createResource(
+              goalId,
+              resource.filename,
+              resource.url,
+              resource.fileType,
+            );
+          } catch (e) {
+            console.warn('Could not save onboarding resource:', e);
+            // Non-fatal — goal is already created
+          }
+        }));
       }
 
       onComplete(goalId, template.type);
@@ -122,7 +124,8 @@ export default function OnboardingWizard({ onComplete }: { onComplete: (id: stri
               next={next}
               back={back}
               setContextText={setContextText}
-              setOnboardingResource={setOnboardingResource}
+              resources={onboardingResources}
+              setResources={setOnboardingResources}
             />
           )}
           {step === 3 && <Step3Availability next={next} back={back} availability={availability} setAvailability={setAvailability} />}

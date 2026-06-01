@@ -349,8 +349,11 @@ const TasksTab = ({ goalId }: { goalId: string }) => {
 const ResourcesTab = ({ goalId }: { goalId: string }) => {
   const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resourceType, setResourceType] = useState<'url' | 'file'>('url');
   const [newUrl, setNewUrl] = useState('');
   const [newLabel, setNewLabel] = useState('');
+  const [newFilePath, setNewFilePath] = useState('');
+  const [newFileType, setNewFileType] = useState<'url' | 'pdf' | 'txt'>('url');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -362,17 +365,26 @@ const ResourcesTab = ({ goalId }: { goalId: string }) => {
 
   const addResource = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUrl.trim()) return;
+    if (resourceType === 'url' && !newUrl.trim()) return;
+    if (resourceType === 'file' && !newLabel.trim()) return;
+
     let label = newLabel.trim();
-    if (!label) {
+    let path = resourceType === 'url' ? newUrl.trim() : newFilePath.trim();
+    if (!label && resourceType === 'url') {
       try { label = new URL(newUrl).hostname; } catch { label = newUrl; }
     }
+    if (!label) {
+      label = resourceType === 'file' ? 'File resource' : 'Resource';
+    }
+
     setSaving(true);
     try {
-      const created = await resourcesApi.createResource(goalId, label, newUrl, 'url');
+      const created = await resourcesApi.createResource(goalId, label, path, newFileType);
       setResources(r => [created, ...r]);
       setNewUrl('');
       setNewLabel('');
+      setNewFilePath('');
+      setNewFileType(resourceType === 'url' ? 'url' : 'pdf');
     } finally {
       setSaving(false);
     }
@@ -391,33 +403,94 @@ const ResourcesTab = ({ goalId }: { goalId: string }) => {
       </div>
 
       {/* Add resource */}
-      <form onSubmit={addResource} className="glass-panel border border-border/50 rounded-2xl p-4 mb-6 space-y-3">
-        <div className="font-display font-display font-semibold text-sm flex items-center gap-2">
-          <Link className="w-4 h-4 text-primary" /> Add a Link
+      <form onSubmit={addResource} className="glass-panel border border-border/50 rounded-2xl p-4 mb-6 space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => { setResourceType('url'); setNewFileType('url'); }}
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition ${resourceType === 'url' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:bg-muted'}`}
+          >
+            Add Website
+          </button>
+          <button
+            type="button"
+            onClick={() => setResourceType('file')}
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition ${resourceType === 'file' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:bg-muted'}`}
+          >
+            Add File Reference
+          </button>
         </div>
-        <div className="flex gap-2">
-          <input
-            type="url"
-            value={newUrl}
-            onChange={e => setNewUrl(e.target.value)}
-            placeholder="https://..."
-            className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-          <input
-            type="text"
-            value={newLabel}
-            onChange={e => setNewLabel(e.target.value)}
-            placeholder="Label (optional)"
-            className="w-40 px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
+
+        <div className="font-display font-semibold text-sm flex items-center gap-2">
+          <Link className="w-4 h-4 text-primary" /> {resourceType === 'url' ? 'Add a Link' : 'Add a File'}
+        </div>
+
+        {resourceType === 'url' ? (
+          <div className="grid md:grid-cols-[1fr_220px] gap-2">
+            <input
+              type="url"
+              value={newUrl}
+              onChange={e => setNewUrl(e.target.value)}
+              placeholder="https://..."
+              className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+            <input
+              type="text"
+              value={newLabel}
+              onChange={e => setNewLabel(e.target.value)}
+              placeholder="Label (optional)"
+              className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-[1fr_180px] gap-2">
+            <input
+              type="text"
+              value={newLabel}
+              onChange={e => setNewLabel(e.target.value)}
+              placeholder="File name or title"
+              className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+            <input
+              type="text"
+              value={newFilePath}
+              onChange={e => setNewFilePath(e.target.value)}
+              placeholder="Optional file path / URL"
+              className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+        )}
+
+        {resourceType === 'file' && (
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setNewFileType('pdf')}
+              className={`px-3 py-2 rounded-lg text-sm ${newFileType === 'pdf' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:bg-muted'}`}
+            >PDF</button>
+            <button
+              type="button"
+              onClick={() => setNewFileType('txt')}
+              className={`px-3 py-2 rounded-lg text-sm ${newFileType === 'txt' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:bg-muted'}`}
+            >TXT</button>
+            <button
+              type="button"
+              onClick={() => setNewFileType('url')}
+              className={`px-3 py-2 rounded-lg text-sm ${newFileType === 'url' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:bg-muted'}`}
+            >Reference</button>
+          </div>
+        )}
+
+        <div className="flex gap-2 items-center">
           <button
             type="submit"
-            disabled={saving || !newUrl.trim()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition flex items-center gap-1 disabled:opacity-50"
+            disabled={saving || (resourceType === 'url' ? !newUrl.trim() : !newLabel.trim())}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition flex items-center gap-2 disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Add
           </button>
+          <span className="text-xs text-muted-foreground">Add multiple resources in a row.</span>
         </div>
       </form>
 
