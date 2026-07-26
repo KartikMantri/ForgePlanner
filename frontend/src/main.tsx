@@ -18,9 +18,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [status, setStatus] = useState<'loading' | 'authed' | 'anon'>('loading');
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setStatus(data.session ? 'authed' : 'anon');
-    });
+    supabase.auth.getSession()
+      .then(({ data }) => setStatus(data.session ? 'authed' : 'anon'))
+      .catch(() => setStatus('anon'));
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setStatus(session ? 'authed' : 'anon');
     });
