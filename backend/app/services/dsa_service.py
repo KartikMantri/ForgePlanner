@@ -47,6 +47,16 @@ class DSAService:
         2. Create dsa_user_progress rows for each problem × this goal (skip existing).
         Returns number of progress rows created.
         """
+        goal_check = (
+            self.db.table("goals")
+            .select("id")
+            .eq("id", str(goal_id))
+            .eq("user_id", str(user_id))
+            .execute()
+        )
+        if not goal_check.data:
+            raise NotFoundError(f"Goal {goal_id} not found")
+
         problems_json: list[dict] = json.loads(SEED_FILE.read_text(encoding="utf-8"))
 
         # Upsert master problems (striver_order is the unique key)

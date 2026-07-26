@@ -9,7 +9,13 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_KEY: str = ""  # Service role key (bypasses RLS)
 
     # ── CORS ──────────────────────────────────────────────────────────────────
+    # Comma-separated list of allowed origins, e.g.
+    # "http://localhost:5173,https://your-app.vercel.app"
     FRONTEND_URL: str = "http://localhost:5173"
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.FRONTEND_URL.split(",") if origin.strip()]
 
     # ── AI Keys ───────────────────────────────────────────────────────────────
     # Gemini is primary; Groq is automatic fallback if Gemini fails or key missing

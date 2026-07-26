@@ -34,7 +34,6 @@ def get_current_user_id(authorization: str = Header(None)) -> UUID:
             algorithms=["ES256", "RS256"],
             audience="authenticated",
         )
-    except jwt.PyJWTError:
+        return UUID(payload["sub"])
+    except (jwt.PyJWTError, KeyError, ValueError):
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    return UUID(payload["sub"])
