@@ -6,3 +6,8 @@ read_docx.ps1
 # Environments
 .env
 .env.*
+!*.env.example
+
+# Local-only video assets (licensed-character footage — not for commit/deploy yet)
+frontend/public/videos/
+*.mp4

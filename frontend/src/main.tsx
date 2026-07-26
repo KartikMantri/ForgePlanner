@@ -3,7 +3,10 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import GoalDashboard from './pages/GoalDashboard';
 import OnboardingWizard from './components/onboarding/OnboardingWizard';
-import IronManHero from './components/ironman/IronManHero';
+import IronManScrollHero from './components/ironman/IronManScrollHero';
+import SplineScene from './components/three/SplineScene';
+import VideoBackground from './components/three/VideoBackground';
+import { SCENE_URLS } from './components/three/scenes';
 import { goalsApi } from './services/api';
 import { Plus, ArrowRight, Target, Flame, Code2, BookOpen } from 'lucide-react';
 import './index.css';
@@ -67,10 +70,10 @@ const MasterDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-hidden flex flex-col font-military selection:bg-[var(--color-arc-cyan)] selection:text-black">
-      
-      {/* Header */}
-      <header className="relative z-20 border-b border-[var(--color-arc-cyan)]/20 bg-black/80 backdrop-blur-xl">
+    <div className="min-h-screen bg-background text-foreground relative flex flex-col font-military selection:bg-[var(--color-arc-cyan)] selection:text-black">
+
+      {/* Header — sticky so FORGE stays on screen through the scroll hero below */}
+      <header className="sticky top-0 z-30 border-b border-[var(--color-arc-cyan)]/20 bg-black/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer min-w-0">
             <div className="w-8 sm:w-10 h-8 sm:h-10 border border-[var(--color-arc-cyan)] rounded-full flex items-center justify-center transition-colors relative overflow-hidden group-hover:shadow-[0_0_15px_rgba(0,212,255,0.8)] flex-shrink-0">
@@ -98,14 +101,31 @@ const MasterDashboard = () => {
         </div>
       </header>
 
+      {/* Scroll-scrubbed Iron Man hero — video time, text reveal, and parallax all driven by scroll/mouse */}
+      <div className="relative z-10">
+        <IronManScrollHero stats={{ total: goals.length }} />
+      </div>
+
       {/* Main Content */}
-      <main className="relative z-10 flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-12 flex flex-col">
-        
-        {/* Iron Man Hero Section */}
-        <IronManHero stats={{ total: goals.length }} />
+      <main className="relative z-10 flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-12 flex flex-col overflow-hidden">
+
+        {/* Ambient background behind the modules grid — real WebGL Spline scene once
+            VITE_SPLINE_IRONMAN_SCENE is set, looping video in the meantime */}
+        <SplineScene
+          sceneUrl={SCENE_URLS.ironman}
+          fallback={
+            <VideoBackground
+              src="/videos/ironman-futuristic.mp4"
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
+              fallback={null}
+            />
+          }
+          className="absolute inset-0 z-0 pointer-events-none"
+        />
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/50 via-black/10 to-black/70 pointer-events-none"></div>
 
         {/* Workspaces Section */}
-        <div className="flex items-center justify-between mb-6 sm:mb-8 overflow-x-auto">
+        <div className="relative z-10 flex items-center justify-between mb-6 sm:mb-8 overflow-x-auto">
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             <h2 className="text-sm sm:text-xl font-display text-[var(--color-arc-cyan)] tracking-widest flex items-center gap-2 whitespace-nowrap">
               <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[var(--color-arc-cyan)] animate-pulse flex-shrink-0"></span>
@@ -116,7 +136,7 @@ const MasterDashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-20">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pb-20">
           {goals.map((goal: any, index: number) => (
             <button
               key={goal.id}

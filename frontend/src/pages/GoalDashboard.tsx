@@ -10,6 +10,8 @@ import SpiderEntrance from '../components/spiderman/SpiderEntrance';
 import SpiderWebBg from '../components/spiderman/SpiderWebBg';
 import DSASheet from '../components/dsa/DSASheet';
 import NotesTab from '../components/notes/NotesTab';
+import SplineScene from '../components/three/SplineScene';
+import { SCENE_URLS } from '../components/three/scenes';
 import { goalsApi, tasksApi, resourcesApi, milestonesApi } from '../services/api';
 
 // ── Shared helpers ─────────────────────────────────────────────────────────────
@@ -633,7 +635,12 @@ export default function GoalDashboard() {
     <>
       {showEntrance && <SpiderEntrance onComplete={() => setShowEntrance(false)} />}
       <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col relative font-display">
-        <SpiderWebBg />
+        {/* Persistent 3D ambience — real WebGL when VITE_SPLINE_SPIDERMAN_SCENE is set, falls back to the existing SVG web bg */}
+        <SplineScene
+          sceneUrl={SCENE_URLS.spiderman}
+          fallback={<SpiderWebBg />}
+          className="fixed inset-0 z-0 pointer-events-none"
+        />
         {/* Spider-Man Halftone BG */}
         <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(204,0,0,0.05)_2px,transparent_2px)] [background-size:16px_16px] pointer-events-none z-0"></div>
         
