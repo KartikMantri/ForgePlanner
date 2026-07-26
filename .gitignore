@@ -8,6 +8,5 @@ read_docx.ps1
 .env.*
 !*.env.example
 
-# Local-only video assets (licensed-character footage — not for commit/deploy yet)
-frontend/public/videos/
-*.mp4
+# Raw uploaded video sources at repo root — the app assets live in frontend/public/videos/
+/kling_*.mp4
