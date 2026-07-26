@@ -9,6 +9,7 @@ import type {
   SaveBlocksRequest,
   NoteBlock,
 } from '../types';
+import { supabase } from '../lib/supabaseClient';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -18,6 +19,27 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Attach the current Supabase session token to every request
+apiClient.interceptors.request.use(async (config) => {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Bounce to login on an expired/invalid session
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // ============================================================================
 // DSA Module
@@ -97,14 +119,6 @@ export const onboardingApi = {
     });
     return data;
   },
-  analyze: async (context_text: string, milestones: any[], availability: any) => {
-    const { data } = await apiClient.post('/onboarding/analyze', {
-      context_text,
-      milestones,
-      availability
-    });
-    return data;
-  }
 };
 
 // ============================================================================

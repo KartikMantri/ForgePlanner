@@ -3,6 +3,8 @@ import { Save, Plus, GripVertical, Trash2, Download } from 'lucide-react';
 import type { NotePageWithBlocks, NoteBlock } from '../../types';
 import { exportNotesToMarkdown } from '../../utils/export';
 
+const NOTE_TEXT_MAX = 300;
+
 interface Props {
   page: NotePageWithBlocks;
   onSave: (blocks: any) => void;
@@ -30,7 +32,7 @@ export function NoteEditor({ page, onSave }: Props) {
 
   const updateBlock = (index: number, text: string) => {
     const newBlocks = [...blocks];
-    newBlocks[index].content = { text };
+    newBlocks[index].content = { text: text.slice(0, NOTE_TEXT_MAX) };
     setBlocks(newBlocks);
   };
 
@@ -92,35 +94,22 @@ export function NoteEditor({ page, onSave }: Props) {
               </div>
               
               {block.type === 'heading' && (
-                <input 
-                  value={block.content.text || ''}
-                  onChange={(e) => updateBlock(i, e.target.value)}
-                  placeholder="LOG HEADER..."
-                  className="flex-1 text-xl font-bold bg-transparent focus:outline-none focus:ring-0 border-b border-transparent focus:border-[var(--color-arc-cyan)] px-2 py-1 font-display tracking-wide text-[var(--color-arc-cyan)] placeholder:text-[var(--color-arc-cyan)]/30"
-                />
+                <div className="flex-1">
+                  <input
+                    value={block.content.text || ''}
+                    onChange={(e) => updateBlock(i, e.target.value)}
+                    maxLength={NOTE_TEXT_MAX}
+                    placeholder="LOG HEADER..."
+                    className="w-full text-xl font-bold bg-transparent focus:outline-none focus:ring-0 border-b border-transparent focus:border-[var(--color-arc-cyan)] px-2 py-1 font-display tracking-wide text-[var(--color-arc-cyan)] placeholder:text-[var(--color-arc-cyan)]/30"
+                  />
+                  <div className="text-[10px] text-[var(--color-arc-cyan)]/30 px-2 font-display tracking-widest">
+                    {(block.content.text || '').length}/{NOTE_TEXT_MAX}
+                  </div>
+                </div>
               )}
               {block.type === 'text' && (
-                <textarea 
-                  value={block.content.text || ''}
-                  onChange={(e) => {
-                    e.target.style.height = 'auto';
-                    e.target.style.height = `${e.target.scrollHeight}px`;
-                    updateBlock(i, e.target.value);
-                  }}
-                  ref={(el) => {
-                    if (el) {
-                      el.style.height = 'auto';
-                      el.style.height = `${el.scrollHeight}px`;
-                    }
-                  }}
-                  placeholder="ENTER DATA..."
-                  className="flex-1 text-sm bg-transparent focus:outline-none focus:ring-0 resize-none min-h-[40px] border border-transparent focus:border-[var(--color-arc-cyan)]/50 rounded bg-black/20 focus:bg-black/40 px-3 py-2 overflow-hidden text-[var(--color-arc-cyan)]/80 placeholder:text-[var(--color-arc-cyan)]/30"
-                />
-              )}
-              {block.type === 'code' && (
-                <div className="flex-1 relative group/code">
-                  <div className="absolute -top-3 left-3 px-2 text-[10px] bg-black text-[var(--color-arc-cyan)]/60 font-display tracking-widest border border-[var(--color-arc-cyan)]/30">SYSTEM.CODE</div>
-                  <textarea 
+                <div className="flex-1">
+                  <textarea
                     value={block.content.text || ''}
                     onChange={(e) => {
                       e.target.style.height = 'auto';
@@ -133,9 +122,38 @@ export function NoteEditor({ page, onSave }: Props) {
                         el.style.height = `${el.scrollHeight}px`;
                       }
                     }}
+                    maxLength={NOTE_TEXT_MAX}
+                    placeholder="ENTER DATA..."
+                    className="w-full text-sm bg-transparent focus:outline-none focus:ring-0 resize-none min-h-[40px] border border-transparent focus:border-[var(--color-arc-cyan)]/50 rounded bg-black/20 focus:bg-black/40 px-3 py-2 overflow-hidden text-[var(--color-arc-cyan)]/80 placeholder:text-[var(--color-arc-cyan)]/30"
+                  />
+                  <div className="text-[10px] text-[var(--color-arc-cyan)]/30 px-1 text-right font-display tracking-widest">
+                    {(block.content.text || '').length}/{NOTE_TEXT_MAX}
+                  </div>
+                </div>
+              )}
+              {block.type === 'code' && (
+                <div className="flex-1 relative group/code">
+                  <div className="absolute -top-3 left-3 px-2 text-[10px] bg-black text-[var(--color-arc-cyan)]/60 font-display tracking-widest border border-[var(--color-arc-cyan)]/30">SYSTEM.CODE</div>
+                  <textarea
+                    value={block.content.text || ''}
+                    onChange={(e) => {
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${e.target.scrollHeight}px`;
+                      updateBlock(i, e.target.value);
+                    }}
+                    ref={(el) => {
+                      if (el) {
+                        el.style.height = 'auto';
+                        el.style.height = `${el.scrollHeight}px`;
+                      }
+                    }}
+                    maxLength={NOTE_TEXT_MAX}
                     placeholder="// EXECUTE PROTOCOL"
                     className="w-full text-sm font-mono bg-black/60 focus:outline-none border border-[var(--color-arc-cyan)]/30 focus:border-[var(--color-arc-cyan)] rounded p-4 pt-5 resize-none min-h-[80px] overflow-hidden text-[#4ADE80] placeholder:text-[var(--color-arc-cyan)]/30 shadow-[inset_0_0_20px_rgba(0,0,0,0.8)]"
                   />
+                  <div className="text-[10px] text-[var(--color-arc-cyan)]/30 px-1 text-right font-display tracking-widest">
+                    {(block.content.text || '').length}/{NOTE_TEXT_MAX}
+                  </div>
                 </div>
               )}
 

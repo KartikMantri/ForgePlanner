@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { Step1Template, Step2Resources, Step3Availability, Step4Milestones, Step5AIAnalyzer, Step6Done } from './WizardSteps';
+import { Step1Template, Step2Resources, Step3Availability, Step4Milestones, Step6Done } from './WizardSteps';
 import { goalsApi, resourcesApi } from '../../services/api';
 
 // Supported goal templates
@@ -34,22 +34,21 @@ export default function OnboardingWizard({
 }) {
   const [step, setStep] = useState(1);
 
-  const next = () => setStep(s => Math.min(6, s + 1));
+  const next = () => setStep(s => Math.min(5, s + 1));
   const back = () => setStep(s => Math.max(1, s - 1));
 
   const [template, setTemplate] = useState<GoalTemplate>(DEFAULT_TEMPLATE);
   const [contextText, setContextText] = useState<string>('');
   // Track all resources added during onboarding so they can be attached to the goal
   const [onboardingResources, setOnboardingResources] = useState<OnboardingResource[]>([]);
-  const [availability, setAvailability] = useState({ hoursPerDay: 2, days: 5 });
+  const [availability, setAvailability] = useState({ hoursPerDay: 2, days: [0, 1, 2, 3, 4] });
   const [milestones, setMilestones] = useState<any[]>([
     { title: '', target_date: '' },
     { title: '', target_date: '' },
     { title: '', target_date: '' },
   ]);
-  const [analysis, setAnalysis] = useState<any>(null);
 
-  const STEPS = ['Template', 'Resources', 'Availability', 'Milestones', 'AI Analyzer', 'Done'];
+  const STEPS = ['Template', 'Resources', 'Availability', 'Milestones', 'Done'];
 
   const handleFinish = async () => {
     try {
@@ -151,8 +150,7 @@ export default function OnboardingWizard({
           )}
           {step === 3 && <Step3Availability next={next} back={back} availability={availability} setAvailability={setAvailability} />}
           {step === 4 && <Step4Milestones next={next} back={back} milestones={milestones} setMilestones={setMilestones} />}
-          {step === 5 && <Step5AIAnalyzer next={next} back={back} contextText={contextText} milestones={milestones} availability={availability} setAnalysis={setAnalysis} />}
-          {step === 6 && <Step6Done finish={handleFinish} template={template} />}
+          {step === 5 && <Step6Done finish={handleFinish} template={template} />}
         </div>
 
       </div>

@@ -7,15 +7,11 @@ from uuid import UUID
 import logging
 
 from app.database.client import get_supabase_client
+from app.auth import get_current_user_id
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/goals", tags=["goals"])
-
-
-def get_current_user_id() -> str:
-    """Placeholder for auth user id."""
-    return "00000000-0000-0000-0000-000000000001"
 
 
 class MilestoneCreate(BaseModel):
@@ -55,24 +51,24 @@ def _seed_dsa_background(goal_id: str, user_id: str) -> None:
 # ── Endpoints ──────────────────────────────────────────────────────────────────
 
 @router.get("")
-async def list_goals(user_id: str = Depends(get_current_user_id)):
+async def list_goals(user_id: UUID = Depends(get_current_user_id)):
     db = get_supabase_client()
     try:
-        res = db.table("goals").select("*").eq("user_id", user_id).execute()
+        res = db.table("goals").select("*").eq("user_id", str(user_id)).execute()
         return res.data or []
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/{goal_id}")
-async def get_goal(goal_id: str, user_id: str = Depends(get_current_user_id)):
+async def get_goal(goal_id: str, user_id: UUID = Depends(get_current_user_id)):
     db = get_supabase_client()
     try:
         res = (
             db.table("goals")
             .select("*, milestones(*)")
             .eq("id", goal_id)
-            .eq("user_id", user_id)
+            .eq("user_id", str(user_id))
             .maybe_single()
             .execute()
         )
@@ -89,13 +85,13 @@ async def get_goal(goal_id: str, user_id: str = Depends(get_current_user_id)):
 async def create_goal(
     data: GoalCreate,
     background_tasks: BackgroundTasks,
-    user_id: str = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
 ):
     db = get_supabase_client()
     try:
         # Create goal
         goal_res = db.table("goals").insert({
-            "user_id": user_id,
+            "user_id": str(user_id),
             "title": data.title,
             "category": data.category,
             "type": data.type,
@@ -120,7 +116,7 @@ async def create_goal(
         # For DSA goals: seed the Striver A-Z sheet in the background
         # so it's ready by the time the user opens the DSA tab.
         if data.type in ("dsa", "competitive"):
-            background_tasks.add_task(_seed_dsa_background, goal_id, user_id)
+            background_tasks.add_task(_seed_dsa_background, goal_id, str(user_id))
             logger.info(f"Queued background DSA seed for goal {goal_id}")
 
         return {"id": goal_id}
@@ -130,11 +126,11 @@ async def create_goal(
 
 
 @router.delete("/{goal_id}", status_code=204)
-async def delete_goal(goal_id: str, user_id: str = Depends(get_current_user_id)):
+async def delete_goal(goal_id: str, user_id: UUID = Depends(get_current_user_id)):
     """Delete a goal and all related data (cascade handled by DB FK constraints)."""
     db = get_supabase_client()
     try:
-        res = db.table("goals").delete().eq("id", goal_id).eq("user_id", user_id).execute()
+        res = db.table("goals").delete().eq("id", goal_id).eq("user_id", str(user_id)).execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Goal not found or not yours")
     except HTTPException:

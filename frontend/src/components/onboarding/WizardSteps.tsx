@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Bot, CheckCircle2, Loader2, Cpu, Code2, BookOpen, Rocket, Globe, Pencil } from 'lucide-react';
+import { Upload, CheckCircle2, Loader2, Cpu, Code2, BookOpen, Rocket, Globe, Pencil } from 'lucide-react';
 import { onboardingApi } from '../../services/api';
 import type { GoalTemplate } from './OnboardingWizard';
-import ArcReactor from '../ironman/ArcReactor';
 import HolographicCarousel from '../ironman/HolographicCarousel';
 
 // ── All supported templates ────────────────────────────────────────────────────
@@ -331,17 +330,25 @@ export const Step3Availability = ({ next, back, availability, setAvailability }:
         <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>1h</span><span>8h</span></div>
       </div>
       <div>
-        <label className="block text-sm font-medium mb-3">Days active per week: <span className="text-primary font-bold">{availability.days} days</span></label>
+        <label className="block text-sm font-medium mb-3">Days active per week: <span className="text-primary font-bold">{availability.days.length} days</span></label>
         <div className="flex gap-2">
-          {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-            <button
-              key={i}
-              onClick={() => setAvailability({ ...availability, days: i + 1 })}
-              className={`w-10 h-10 rounded-full font-medium text-sm transition-all ${i < availability.days ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-            >
-              {d}
-            </button>
-          ))}
+          {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => {
+            const selected = availability.days.includes(i);
+            return (
+              <button
+                key={i}
+                onClick={() => {
+                  const days = selected
+                    ? availability.days.filter((day: number) => day !== i)
+                    : [...availability.days, i].sort((a: number, b: number) => a - b);
+                  setAvailability({ ...availability, days });
+                }}
+                className={`w-10 h-10 rounded-full font-medium text-sm transition-all ${selected ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+              >
+                {d}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -380,83 +387,13 @@ export const Step4Milestones = ({ next, back, milestones, setMilestones }: any) 
 
       <div className="flex justify-between">
         <button onClick={back} className="px-6 py-2 rounded-lg font-medium hover:bg-muted transition">Back</button>
-        <button onClick={next} className="px-6 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:opacity-90 transition flex items-center gap-2">
-          <Bot className="w-4 h-4" /> Analyze Plan
-        </button>
+        <button onClick={next} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition">Continue</button>
       </div>
     </div>
   );
 };
 
-// ── Step 5: AI Analyzer ────────────────────────────────────────────────────────
-export const Step5AIAnalyzer = ({ next, back, contextText, milestones, availability, setAnalysis }: any) => {
-  const [localAnalysis, setLocalAnalysis] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-    onboardingApi.analyze(contextText, milestones, availability).then(res => {
-      if (mounted) { setLocalAnalysis(res); setAnalysis(res); setLoading(false); }
-    }).catch(err => {
-      console.error(err);
-      if (mounted) {
-        setLocalAnalysis({ score: 75, verdict: 'Looks Achievable', advice: "Your plan looks solid! Stay consistent with your daily schedule and you'll hit your milestones." });
-        setLoading(false);
-      }
-    });
-    return () => { mounted = false; };
-  }, []);
-
-  return (
-    <div className="animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
-      <h2 className="text-3xl font-display font-bold text-[var(--color-arc-cyan)] tracking-widest uppercase filter drop-shadow-[0_0_10px_rgba(0,212,255,0.8)] mb-2">JARVIS System Analysis</h2>
-      <p className="text-[var(--color-arc-cyan)]/70 font-display tracking-widest text-sm mb-6">PROCESSING ROADMAP FEASIBILITY...</p>
-
-      <div className="w-full max-w-md mx-auto mb-8 relative">
-        <div className="h-48 relative mb-6">
-          <ArcReactor isCharging={loading} isSuccess={!loading && (localAnalysis?.score ?? 0) >= 70} />
-        </div>
-
-        {loading ? (
-          <div className="font-display text-[var(--color-arc-cyan)] animate-pulse tracking-widest text-sm">
-            <Bot className="inline w-5 h-5 mr-2 animate-bounce" /> ANALYZING PARAMETERS...
-          </div>
-        ) : (
-          <div className="border border-[var(--color-arc-cyan)] bg-black/60 backdrop-blur-md rounded-xl p-6 text-left shadow-[0_0_30px_rgba(0,212,255,0.1)]">
-            <div className="flex items-center gap-4 mb-4">
-              <div className={`w-16 h-16 rounded-full border flex items-center justify-center font-black text-2xl flex-shrink-0 font-display shadow-[0_0_15px_currentColor] ${
-                (localAnalysis?.score ?? 0) >= 80 ? 'border-[#4ADE80] text-[#4ADE80] bg-[#4ADE80]/10' :
-                (localAnalysis?.score ?? 0) >= 50 ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' :
-                'border-red-400 text-red-400 bg-red-400/10'
-              }`}>
-                {localAnalysis?.score ?? '--'}
-              </div>
-              <div>
-                <h3 className="font-bold text-xl text-white font-display tracking-wide">{localAnalysis?.verdict ?? 'Analysis Complete'}</h3>
-                <p className="text-sm text-[var(--color-arc-cyan)]/60 font-display tracking-widest">HOURS: {availability.hoursPerDay}/DAY | DAYS: {availability.days}/WK</p>
-              </div>
-            </div>
-            <div className="bg-black/40 rounded-lg p-4 text-sm border border-[var(--color-arc-cyan)]/30 text-[var(--color-arc-cyan)]/80 leading-relaxed font-mono">
-              <strong className="text-[var(--color-arc-cyan)] block mb-1 font-display tracking-wider">JARVIS ADVICE:</strong> 
-              {'>'} {localAnalysis?.advice ?? 'Looks good, proceed!'}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-between w-full mt-4">
-        <button onClick={back} disabled={loading} className="px-6 py-2 bg-transparent text-[var(--color-arc-cyan)]/50 hover:text-[var(--color-arc-cyan)] border border-[var(--color-arc-cyan)]/30 hover:border-[var(--color-arc-cyan)] rounded-lg font-display tracking-widest transition-all disabled:opacity-30">
-          ◀ BACK
-        </button>
-        <button onClick={next} disabled={loading} className="px-8 py-2 bg-[var(--color-arc-cyan)]/10 text-[var(--color-arc-cyan)] hover:bg-[var(--color-arc-cyan)] hover:text-black border border-[var(--color-arc-cyan)] shadow-[0_0_15px_rgba(0,212,255,0.3)] rounded-lg font-display font-bold tracking-widest transition-all disabled:opacity-30 disabled:shadow-none">
-          INITIATE PROTOCOL
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ── Step 6: Done ───────────────────────────────────────────────────────────────
+// ── Step 5: Done ───────────────────────────────────────────────────────────────
 export const Step6Done = ({ finish, template }: { finish: () => void; template: GoalTemplate }) => {
   const [booting, setBooting] = useState(true);
 

@@ -2,14 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from uuid import UUID
 
 from app.database.client import get_supabase_client
+from app.auth import get_current_user_id
 
 router = APIRouter(prefix="/api/v1/tasks", tags=["tasks"])
-
-
-def get_current_user_id() -> str:
-    return "00000000-0000-0000-0000-000000000001"
 
 
 class TaskCreate(BaseModel):
@@ -24,26 +22,50 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = None
 
 
+def _assert_goal_owned(db, goal_id: str, user_id: UUID) -> None:
+    res = db.table("goals").select("id").eq("id", goal_id).eq("user_id", str(user_id)).maybe_single().execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Goal not found")
+
+
+def _assert_task_owned(db, task_id: str, user_id: UUID) -> None:
+    res = (
+        db.table("tasks")
+        .select("id, milestones(goals(user_id))")
+        .eq("id", task_id)
+        .maybe_single()
+        .execute()
+    )
+    owner = ((res.data or {}).get("milestones") or {}).get("goals", {}).get("user_id")
+    if not res.data or owner != str(user_id):
+        raise HTTPException(status_code=404, detail="Task not found")
+
+
 @router.get("")
-async def list_tasks(goal_id: str, user_id: str = Depends(get_current_user_id)):
+async def list_tasks(goal_id: str, user_id: UUID = Depends(get_current_user_id)):
     """Fetch all tasks for a goal by joining through milestones."""
     db = get_supabase_client()
     try:
+        _assert_goal_owned(db, goal_id, user_id)
         milestones = db.table("milestones").select("id").eq("goal_id", goal_id).execute()
         if not milestones.data:
             return []
         milestone_ids = [m["id"] for m in milestones.data]
         tasks = db.table("tasks").select("*").in_("milestone_id", milestone_ids).order("created_at").execute()
         return tasks.data or []
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("")
-async def create_task(data: TaskCreate, user_id: str = Depends(get_current_user_id)):
+async def create_task(data: TaskCreate, user_id: UUID = Depends(get_current_user_id)):
     """Create a task. Auto-attaches to the first milestone; creates one if none exist."""
     db = get_supabase_client()
     try:
+        _assert_goal_owned(db, data.goal_id, user_id)
+
         milestone_id = data.milestone_id
         if not milestone_id:
             ms = db.table("milestones").select("id").eq("goal_id", data.goal_id).limit(1).execute()
@@ -66,15 +88,19 @@ async def create_task(data: TaskCreate, user_id: str = Depends(get_current_user_
             "xp_value": data.xp_value
         }).execute()
         return res.data[0]
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.put("/{task_id}")
-async def update_task(task_id: str, data: TaskUpdate):
+async def update_task(task_id: str, data: TaskUpdate, user_id: UUID = Depends(get_current_user_id)):
     """Update a task's status or title."""
     db = get_supabase_client()
     try:
+        _assert_task_owned(db, task_id, user_id)
+
         update_data: dict = {}
         if data.status is not None:
             update_data["status"] = data.status
@@ -96,11 +122,14 @@ async def update_task(task_id: str, data: TaskUpdate):
 
 
 @router.delete("/{task_id}")
-async def delete_task(task_id: str):
+async def delete_task(task_id: str, user_id: UUID = Depends(get_current_user_id)):
     """Delete a task."""
     db = get_supabase_client()
     try:
+        _assert_task_owned(db, task_id, user_id)
         db.table("tasks").delete().eq("id", task_id).execute()
         return {"ok": True}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

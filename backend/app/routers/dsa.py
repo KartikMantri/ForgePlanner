@@ -12,6 +12,7 @@ from app.schemas.dsa import (
 from app.services.dsa_service import DSAService
 from app.database.client import get_supabase_client
 from app.utils.exceptions import NotFoundError
+from app.auth import get_current_user_id
 
 router = APIRouter(prefix="/api/v1/dsa", tags=["dsa"])
 
@@ -20,11 +21,6 @@ router = APIRouter(prefix="/api/v1/dsa", tags=["dsa"])
 
 def get_dsa_service(supabase=Depends(get_supabase_client)) -> DSAService:
     return DSAService(supabase)
-
-
-def get_current_user_id() -> UUID:
-    """Placeholder — replace with real auth in post-P0."""
-    return UUID("00000000-0000-0000-0000-000000000001")
 
 
 # ── Seed ──────────────────────────────────────────────────────────────────────

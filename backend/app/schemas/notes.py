@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Any
 from datetime import datetime
 from uuid import UUID
+
+NOTE_TEXT_MAX_LENGTH = 300
 
 
 # ---------------------------------------------------------------------------
@@ -45,6 +47,14 @@ class NoteBlockData(BaseModel):
     type: str = Field(..., description=f"One of: {', '.join(sorted(ALLOWED_BLOCK_TYPES))}")
     content: dict[str, Any] = Field(default_factory=dict)
     sort_order: int = Field(default=0, ge=0)
+
+    @field_validator("content")
+    @classmethod
+    def _enforce_text_length(cls, content: dict[str, Any]) -> dict[str, Any]:
+        text = content.get("text")
+        if isinstance(text, str) and len(text) > NOTE_TEXT_MAX_LENGTH:
+            raise ValueError(f"Note text exceeds {NOTE_TEXT_MAX_LENGTH} characters")
+        return content
 
 
 class NoteBlockResponse(NoteBlockData):

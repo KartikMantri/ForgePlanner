@@ -12,6 +12,7 @@ from app.schemas.notes import (
 from app.services.notes_service import NotesService
 from app.database.client import get_supabase_client
 from app.utils.exceptions import NotFoundError
+from app.auth import get_current_user_id
 
 router = APIRouter(prefix="/api/v1/notes", tags=["notes"])
 
@@ -20,10 +21,6 @@ router = APIRouter(prefix="/api/v1/notes", tags=["notes"])
 
 def get_notes_service(supabase=Depends(get_supabase_client)) -> NotesService:
     return NotesService(supabase)
-
-
-def get_current_user_id() -> UUID:
-    return UUID("00000000-0000-0000-0000-000000000001")
 
 
 # ── Pages ─────────────────────────────────────────────────────────────────────

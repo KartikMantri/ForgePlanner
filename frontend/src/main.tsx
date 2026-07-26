@@ -2,19 +2,47 @@ import React, { StrictMode, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import GoalDashboard from './pages/GoalDashboard';
+import AuthPage from './pages/AuthPage';
 import OnboardingWizard from './components/onboarding/OnboardingWizard';
 import IronManScrollHero from './components/ironman/IronManScrollHero';
 import SplineScene from './components/three/SplineScene';
 import VideoBackground from './components/three/VideoBackground';
 import { SCENE_URLS } from './components/three/scenes';
 import { goalsApi } from './services/api';
-import { Plus, ArrowRight, Target, Flame, Code2, BookOpen } from 'lucide-react';
+import { supabase } from './lib/supabaseClient';
+import { Plus, ArrowRight, Target, Flame, Code2, BookOpen, LogOut } from 'lucide-react';
 import './index.css';
+
+// ── Route guard — redirects to /login when there's no active Supabase session ──
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const [status, setStatus] = useState<'loading' | 'authed' | 'anon'>('loading');
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setStatus(data.session ? 'authed' : 'anon');
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setStatus(session ? 'authed' : 'anon');
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-[var(--color-arc-cyan)]/30 border-t-[var(--color-arc-cyan)] rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (status === 'anon') return <Navigate to="/login" replace />;
+  return <>{children}</>;
+};
 
 // ── Master Dashboard ───────────────────────────────────────────────────────────
 const MasterDashboard = () => {
   const [showWizard, setShowWizard] = useState(false);
   const [goals, setGoals] = useState<any[]>([]);
+  const [callsign, setCallsign] = useState('Operator');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +54,15 @@ const MasterDashboard = () => {
         status: 'active',
         type: 'dsa'
       }]);
+    });
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const user = data.user;
+      if (!user) return;
+      const name = user.user_metadata?.username || user.email?.split('@')[0];
+      if (name) setCallsign(name);
     });
   }, []);
 
@@ -87,23 +124,33 @@ const MasterDashboard = () => {
             </span>
           </div>
           
-          <button
-            onClick={() => setShowWizard(true)}
-            className="group relative px-3 sm:px-6 py-2 bg-transparent border border-[var(--color-arc-cyan)] text-[var(--color-arc-cyan)] font-display tracking-widest text-xs sm:text-sm hover:text-black hover:bg-[var(--color-arc-cyan)] transition-all duration-300 overflow-hidden shadow-[0_0_15px_rgba(0,212,255,0.2)] hover:shadow-[0_0_25px_rgba(0,212,255,0.6)] flex-shrink-0 active:scale-95 sm:active:scale-100"
-          >
-            <span className="relative z-10 flex items-center gap-1 sm:gap-2 whitespace-nowrap">
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4" /> 
-              <span className="hidden sm:inline">INITIATE</span>
-              <span className="sm:hidden">+</span>
-            </span>
-            <div className="absolute inset-0 bg-[var(--color-arc-cyan)] transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-out"></div>
-          </button>
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <button
+              onClick={() => setShowWizard(true)}
+              className="group relative px-3 sm:px-6 py-2 bg-transparent border border-[var(--color-arc-cyan)] text-[var(--color-arc-cyan)] font-display tracking-widest text-xs sm:text-sm hover:text-black hover:bg-[var(--color-arc-cyan)] transition-all duration-300 overflow-hidden shadow-[0_0_15px_rgba(0,212,255,0.2)] hover:shadow-[0_0_25px_rgba(0,212,255,0.6)] active:scale-95 sm:active:scale-100"
+            >
+              <span className="relative z-10 flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">INITIATE</span>
+                <span className="sm:hidden">+</span>
+              </span>
+              <div className="absolute inset-0 bg-[var(--color-arc-cyan)] transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-out"></div>
+            </button>
+
+            <button
+              onClick={async () => { await supabase.auth.signOut(); navigate('/login'); }}
+              title="Log out"
+              className="p-2 border border-white/10 text-white/50 hover:text-[var(--color-arc-cyan)] hover:border-[var(--color-arc-cyan)]/50 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Scroll-scrubbed Iron Man hero — video time, text reveal, and parallax all driven by scroll/mouse */}
       <div className="relative z-10">
-        <IronManScrollHero stats={{ total: goals.length }} />
+        <IronManScrollHero userName={callsign} stats={{ total: goals.length }} />
       </div>
 
       {/* Main Content */}
@@ -230,8 +277,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MasterDashboard />} />
-        <Route path="/goals/:goalId" element={<GoalDashboard />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/" element={<ProtectedRoute><MasterDashboard /></ProtectedRoute>} />
+        <Route path="/goals/:goalId" element={<ProtectedRoute><GoalDashboard /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
