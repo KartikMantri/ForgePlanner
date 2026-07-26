@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Loader2, Lock, Mail, User as UserIcon } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Loader2, Lock, Mail, User as UserIcon, BookOpen } from 'lucide-react';
 import ArcReactorScene from '../components/three/ArcReactorScene';
 import { supabase } from '../lib/supabaseClient';
 
@@ -50,6 +50,12 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-black text-foreground font-military selection:bg-[var(--color-arc-cyan)] selection:text-black">
+      <Link
+        to="/guide"
+        className="fixed top-4 right-4 z-40 flex items-center gap-1.5 px-3 py-2 bg-black/70 backdrop-blur border border-[var(--color-arc-cyan)]/30 text-[var(--color-arc-cyan)] hover:border-[var(--color-arc-cyan)] rounded font-display text-xs tracking-widest transition-colors"
+      >
+        <BookOpen className="w-3.5 h-3.5" /> GUIDE
+      </Link>
       <ArcReactorScene revealAt={0.3}>
         <div className="max-w-sm mx-auto text-center bg-black/70 backdrop-blur-xl border border-[var(--color-arc-cyan)]/30 rounded-2xl p-6 sm:p-8 shadow-[0_0_40px_rgba(0,0,0,0.8)]">
           <div className="w-12 h-12 mx-auto mb-4 border border-[var(--color-arc-cyan)] rounded-full flex items-center justify-center relative overflow-hidden shadow-[0_0_15px_rgba(0,212,255,0.6)]">
