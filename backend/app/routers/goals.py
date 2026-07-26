@@ -115,7 +115,7 @@ async def create_goal(
 
         # For DSA goals: seed the Striver A-Z sheet in the background
         # so it's ready by the time the user opens the DSA tab.
-        if data.type in ("dsa", "competitive"):
+        if data.type == "dsa":
             background_tasks.add_task(_seed_dsa_background, goal_id, str(user_id))
             logger.info(f"Queued background DSA seed for goal {goal_id}")
 

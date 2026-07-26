@@ -38,7 +38,6 @@ export default function OnboardingWizard({
   const back = () => setStep(s => Math.max(1, s - 1));
 
   const [template, setTemplate] = useState<GoalTemplate>(DEFAULT_TEMPLATE);
-  const [contextText, setContextText] = useState<string>('');
   // Track all resources added during onboarding so they can be attached to the goal
   const [onboardingResources, setOnboardingResources] = useState<OnboardingResource[]>([]);
   const [availability, setAvailability] = useState({ hoursPerDay: 2, days: [0, 1, 2, 3, 4] });
@@ -143,7 +142,6 @@ export default function OnboardingWizard({
             <Step2Resources
               next={next}
               back={back}
-              setContextText={setContextText}
               resources={onboardingResources}
               setResources={setOnboardingResources}
             />

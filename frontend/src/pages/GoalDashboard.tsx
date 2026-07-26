@@ -562,7 +562,7 @@ export default function GoalDashboard() {
   // Determine if this is a DSA-type goal (from nav state or loaded goal)
   const navGoalType = (location.state as any)?.goalType ?? '';
   const goalType = goal?.type ?? navGoalType;
-  const isDSAGoal = ['dsa', 'competitive'].includes(goalType);
+  const isDSAGoal = goalType === 'dsa';
 
   // Filter visible tabs based on goal type
   const TABS = ALL_TABS.filter(t => !t.dsaOnly || isDSAGoal);
@@ -579,7 +579,7 @@ export default function GoalDashboard() {
         setGoal(data);
         // Once we know the goal type, snap to correct default tab if still on initial
         const type = data?.type ?? '';
-        const isDSA = ['dsa', 'competitive'].includes(type);
+        const isDSA = type === 'dsa';
         setActiveTab(t => t === defaultTab ? (isDSA ? 'dsa' : 'planner') : t);
       })
       .catch(() => setGoal({ title: 'My Goal', category: 'Custom', type: 'custom', milestones: [] }))

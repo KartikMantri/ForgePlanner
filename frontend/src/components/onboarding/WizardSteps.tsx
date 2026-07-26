@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, CheckCircle2, Loader2, Cpu, Code2, BookOpen, Rocket, Globe, Pencil } from 'lucide-react';
-import { onboardingApi } from '../../services/api';
+import { CheckCircle2, Cpu, Code2, BookOpen, Rocket, Globe, Pencil } from 'lucide-react';
 import type { GoalTemplate } from './OnboardingWizard';
 import HolographicCarousel from '../ironman/HolographicCarousel';
 
@@ -139,62 +138,29 @@ export const Step1Template = ({
 export const Step2Resources = ({
   next,
   back,
-  setContextText,
   resources,
   setResources,
 }: {
   next: () => void;
   back: () => void;
-  setContextText: React.Dispatch<React.SetStateAction<string>>;
   resources: { filename: string; url: string; fileType: 'url' | 'pdf' | 'txt' }[];
   setResources: React.Dispatch<React.SetStateAction<{ filename: string; url: string; fileType: 'url' | 'pdf' | 'txt' }[]>>;
 }) => {
-  const [loading, setLoading] = useState(false);
-  const [resourceType, setResourceType] = useState<'url' | 'file'>('url');
   const [url, setUrl] = useState('');
   const [label, setLabel] = useState('');
   const [added, setAdded] = useState('');
 
-  const handleAddUrl = async () => {
+  const handleAddUrl = () => {
     if (!url) return;
-    setLoading(true);
-    try {
-      const { text } = await onboardingApi.parseUrl(url);
-      setContextText(prev => prev ? `${prev}\n${text}` : text);
-      let filename = label.trim();
-      if (!filename) {
-        try { filename = new URL(url).hostname; } catch { filename = url; }
-      }
-      const newResource = { filename, url, fileType: 'url' as const };
-      setResources(prev => [newResource, ...prev]);
-      setAdded(filename);
-      setUrl('');
-      setLabel('');
-    } catch (e) {
-      console.error(e);
-      alert('Failed to parse URL. Try a different link or skip this step.');
-    } finally {
-      setLoading(false);
+    let filename = label.trim();
+    if (!filename) {
+      try { filename = new URL(url).hostname; } catch { filename = url; }
     }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setLoading(true);
-    try {
-      const { text } = await onboardingApi.parseFile(file);
-      setContextText(prev => prev ? `${prev}\n${text}` : text);
-      const ext = file.name.split('.').pop()?.toLowerCase() as 'pdf' | 'txt' | undefined;
-      const newResource = { filename: file.name, url: '', fileType: ext ?? 'txt' };
-      setResources(prev => [newResource, ...prev]);
-      setAdded(file.name);
-    } catch (err) {
-      console.error(err);
-      alert('Failed to parse file.');
-    } finally {
-      setLoading(false);
-    }
+    const newResource = { filename, url, fileType: 'url' as const };
+    setResources(prev => [newResource, ...prev]);
+    setAdded(filename);
+    setUrl('');
+    setLabel('');
   };
 
   const removeResource = (index: number) => {
@@ -203,9 +169,9 @@ export const Step2Resources = ({
 
   return (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-      <h2 className="text-2xl font-bold mb-2">Upload Resources</h2>
+      <h2 className="text-2xl font-bold mb-2">Add Resources</h2>
       <p className="text-muted-foreground mb-6">
-        Add one or more links or files to personalize your plan. Forge AI will extract context from each source.
+        Attach any links relevant to this goal — a syllabus, documentation, a course page. They'll show up in the goal's Resources tab.
       </p>
 
       {resources.length > 0 && (
@@ -213,7 +179,7 @@ export const Step2Resources = ({
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold">Added resources</p>
-              <p className="text-xs text-muted-foreground">You can add multiple files and websites before continuing.</p>
+              <p className="text-xs text-muted-foreground">You can add multiple links before continuing.</p>
             </div>
             <span className="px-2 py-1 text-xs uppercase tracking-[0.18em] bg-primary/10 text-primary rounded-full">{resources.length}</span>
           </div>
@@ -222,7 +188,7 @@ export const Step2Resources = ({
               <div key={`${resource.filename}-${index}`} className="flex items-center justify-between gap-3 p-3 bg-background border border-border rounded-xl">
                 <div>
                   <div className="font-medium text-sm">{resource.filename}</div>
-                  <div className="text-xs text-muted-foreground truncate">{resource.fileType === 'url' ? resource.url || 'Website' : `${resource.fileType.toUpperCase()} file`}</div>
+                  <div className="text-xs text-muted-foreground truncate">{resource.url}</div>
                 </div>
                 <button type="button" onClick={() => removeResource(index)} className="text-red-400 hover:text-red-300 text-sm">Remove</button>
               </div>
@@ -231,75 +197,31 @@ export const Step2Resources = ({
         </div>
       )}
 
-      <div className="mb-6 grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={() => setResourceType('url')}
-          className={`px-4 py-3 rounded-2xl border text-sm font-semibold transition ${resourceType === 'url' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-muted-foreground hover:border-primary/50'}`}
-        >
-          Add Website
-        </button>
-        <button
-          type="button"
-          onClick={() => setResourceType('file')}
-          className={`px-4 py-3 rounded-2xl border text-sm font-semibold transition ${resourceType === 'file' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-muted-foreground hover:border-primary/50'}`}
-        >
-          Add File
+      <div className="space-y-4 mb-6">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground">Link</label>
+          <input
+            type="url"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            placeholder="https://example.com"
+            className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground">Label (optional)</label>
+          <input
+            type="text"
+            value={label}
+            onChange={e => setLabel(e.target.value)}
+            placeholder="Quick reference name"
+            className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+          />
+        </div>
+        <button onClick={handleAddUrl} disabled={!url} className="w-full px-5 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-50">
+          Add link
         </button>
       </div>
-
-      {resourceType === 'url' ? (
-        <div className="space-y-4 mb-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Link</label>
-            <input
-              type="url"
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-              placeholder="https://example.com"
-              className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-              disabled={loading}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Label (optional)</label>
-            <input
-              type="text"
-              value={label}
-              onChange={e => setLabel(e.target.value)}
-              placeholder="Quick reference name"
-              className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-              disabled={loading}
-            />
-          </div>
-          <button onClick={handleAddUrl} disabled={loading || !url} className="w-full px-5 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-50">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add website'}
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-4 mb-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Upload file</label>
-            <label className="cursor-pointer block rounded-2xl border border-dashed border-border bg-muted/20 p-6 text-center hover:border-primary/50 transition">
-              <input type="file" accept=".pdf,.txt" className="hidden" onChange={handleFileUpload} disabled={loading} />
-              <Upload className="mx-auto mb-3 w-6 h-6 text-muted-foreground" />
-              <p className="text-sm">Click to upload a PDF or TXT file</p>
-            </label>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">File name</label>
-            <input
-              type="text"
-              value={label}
-              onChange={e => setLabel(e.target.value)}
-              placeholder="Example: syllabus.pdf"
-              className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-              disabled={loading}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground">Uploaded file text is extracted automatically and the file reference is kept for your goal resources.</p>
-        </div>
-      )}
 
       {added && (
         <div className="mb-4 flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg text-sm">
@@ -310,8 +232,8 @@ export const Step2Resources = ({
       )}
 
       <div className="flex justify-between">
-        <button onClick={back} disabled={loading} className="px-6 py-2 rounded-lg font-medium hover:bg-muted transition">Back</button>
-        <button onClick={next} disabled={loading} className="px-6 py-2 bg-secondary text-secondary-foreground rounded-lg font-medium hover:opacity-90 transition">Continue</button>
+        <button onClick={back} className="px-6 py-2 rounded-lg font-medium hover:bg-muted transition">Back</button>
+        <button onClick={next} className="px-6 py-2 bg-secondary text-secondary-foreground rounded-lg font-medium hover:opacity-90 transition">Continue</button>
       </div>
     </div>
   );

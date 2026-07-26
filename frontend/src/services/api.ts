@@ -103,25 +103,6 @@ export const notesApi = {
 };
 
 // ============================================================================
-// Onboarding Module
-// ============================================================================
-
-export const onboardingApi = {
-  parseUrl: async (url: string) => {
-    const { data } = await apiClient.post('/onboarding/parse-url', { url });
-    return data;
-  },
-  parseFile: async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const { data } = await apiClient.post('/onboarding/parse-file', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    return data;
-  },
-};
-
-// ============================================================================
 // Goals Module
 // ============================================================================
 

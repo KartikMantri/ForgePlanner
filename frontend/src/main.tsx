@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import GoalDashboard from './pages/GoalDashboard';
 import AuthPage from './pages/AuthPage';
 import GuidePage from './pages/GuidePage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import OnboardingWizard from './components/onboarding/OnboardingWizard';
 import IronManScrollHero from './components/ironman/IronManScrollHero';
 import SplineScene from './components/three/SplineScene';
@@ -11,7 +12,7 @@ import VideoBackground from './components/three/VideoBackground';
 import { SCENE_URLS } from './components/three/scenes';
 import { goalsApi } from './services/api';
 import { supabase } from './lib/supabaseClient';
-import { Plus, ArrowRight, Target, Flame, Code2, BookOpen, LogOut, HelpCircle } from 'lucide-react';
+import { Plus, ArrowRight, Target, Flame, Code2, BookOpen, LogOut, HelpCircle, KeyRound } from 'lucide-react';
 import './index.css';
 
 // ── Route guard — redirects to /login when there's no active Supabase session ──
@@ -144,6 +145,14 @@ const MasterDashboard = () => {
               className="p-2 border border-white/10 text-white/50 hover:text-[var(--color-arc-cyan)] hover:border-[var(--color-arc-cyan)]/50 transition-colors"
             >
               <HelpCircle className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => navigate('/reset-password')}
+              title="Change password"
+              className="p-2 border border-white/10 text-white/50 hover:text-[var(--color-arc-cyan)] hover:border-[var(--color-arc-cyan)]/50 transition-colors"
+            >
+              <KeyRound className="w-4 h-4" />
             </button>
 
             <button
@@ -288,6 +297,7 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/login" element={<AuthPage />} />
         <Route path="/guide" element={<GuidePage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/" element={<ProtectedRoute><MasterDashboard /></ProtectedRoute>} />
         <Route path="/goals/:goalId" element={<ProtectedRoute><GoalDashboard /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -8,7 +8,7 @@ from app.config import settings
 # ── Import all routers ────────────────────────────────────────────────────────
 # P0 routers (goals / milestones / tasks) will be added here once built
 # P1 routers
-from app.routers import dsa, notes, onboarding, goals, tasks, resources, milestones
+from app.routers import dsa, notes, goals, tasks, resources, milestones
 
 app = FastAPI(
     title="Forge API",
@@ -30,7 +30,6 @@ app.add_middleware(
 # ── Register routers ──────────────────────────────────────────────────────────
 app.include_router(dsa.router)
 app.include_router(notes.router)
-app.include_router(onboarding.router)
 app.include_router(goals.router)
 app.include_router(tasks.router)
 app.include_router(resources.router)
