@@ -8,8 +8,6 @@ from app.schemas.dsa import (
     DSATopicGroup,
     DSARevisionLogCreate,
     DSARevisionLogResponse,
-    DSAHintResponse,
-    DSAApproachReviewResponse,
 )
 from app.services.dsa_service import DSAService
 from app.database.client import get_supabase_client
@@ -149,55 +147,3 @@ async def log_revision(
         return await service.log_revision(progress_id, user_id, data)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-
-# ── AI Endpoints ──────────────────────────────────────────────────────────────
-
-@router.post(
-    "/progress/{progress_id}/hint",
-    response_model=DSAHintResponse,
-    summary="Get an AI nudge hint without spoiling the solution",
-)
-async def get_hint(
-    progress_id: UUID,
-    user_id: UUID = Depends(get_current_user_id),
-    service: DSAService = Depends(get_dsa_service),
-):
-    try:
-        progress = await service.get_progress(progress_id, user_id)
-        from app.services.ai_service import get_dsa_hint
-        hint = await get_dsa_hint(
-            problem_title=progress.problem.title,
-            approach_notes=progress.approach_notes or "",
-        )
-        return DSAHintResponse(hint=hint)
-    except NotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except RuntimeError as e:
-        raise HTTPException(status_code=503, detail=str(e))
-
-
-@router.post(
-    "/progress/{progress_id}/review",
-    response_model=DSAApproachReviewResponse,
-    summary="AI reviews the user's approach notes",
-)
-async def review_approach(
-    progress_id: UUID,
-    user_id: UUID = Depends(get_current_user_id),
-    service: DSAService = Depends(get_dsa_service),
-):
-    try:
-        progress = await service.get_progress(progress_id, user_id)
-        if not progress.approach_notes:
-            raise HTTPException(status_code=400, detail="No approach notes to review yet")
-        from app.services.ai_service import review_approach as ai_review
-        review = await ai_review(
-            problem_title=progress.problem.title,
-            approach_notes=progress.approach_notes,
-        )
-        return DSAApproachReviewResponse(review=review)
-    except NotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except RuntimeError as e:
-        raise HTTPException(status_code=503, detail=str(e))

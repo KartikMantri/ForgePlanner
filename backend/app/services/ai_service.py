@@ -104,38 +104,6 @@ SYSTEM_FORGE = (
 )
 
 
-async def get_dsa_hint(problem_title: str, approach_notes: str = "") -> str:
-    """
-    Give a nudge hint for a DSA problem without spoiling the full solution.
-    """
-    notes_context = f"\nUser's current notes: {approach_notes}" if approach_notes else ""
-    prompt = (
-        f"The user is stuck on the LeetCode/DSA problem: '{problem_title}'.{notes_context}\n\n"
-        "Give ONE short, directional hint (2-3 sentences max) that points them toward "
-        "the right approach without revealing the full algorithm or code. "
-        "Ask a guiding question if helpful."
-    )
-    return await generate_text(prompt, system_prompt=SYSTEM_FORGE, max_tokens=256)
-
-
-async def review_approach(problem_title: str, approach_notes: str) -> str:
-    """
-    Review the user's approach to a DSA problem and suggest improvements.
-    """
-    prompt = (
-        f"Problem: '{problem_title}'\n"
-        f"User's approach:\n{approach_notes}\n\n"
-        "Review this approach. Point out:\n"
-        "1. What's correct / on the right track\n"
-        "2. Potential edge cases they might have missed\n"
-        "3. Time/space complexity if they haven't mentioned it\n"
-        "4. One concrete suggestion to improve or simplify\n"
-        "Keep the review under 200 words."
-    )
-    return await generate_text(prompt, system_prompt=SYSTEM_FORGE, max_tokens=400)
-
-
-
 async def analyze_goal_plan(
     goal_title: str,
     category: str,

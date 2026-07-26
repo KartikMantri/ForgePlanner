@@ -213,11 +213,14 @@ const MasterDashboard = () => {
       </main>
 
       {showWizard && (
-        <OnboardingWizard onComplete={(id: string, goalType: string) => {
-          setShowWizard(false);
-          goalsApi.listGoals().then(setGoals).catch(() => {});
-          navigate(`/goals/${id}`, { state: { goalType } });
-        }} />
+        <OnboardingWizard
+          onComplete={(id: string, goalType: string) => {
+            setShowWizard(false);
+            goalsApi.listGoals().then(setGoals).catch(() => {});
+            navigate(`/goals/${id}`, { state: { goalType } });
+          }}
+          onClose={() => setShowWizard(false)}
+        />
       )}
     </div>
   );

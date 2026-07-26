@@ -131,15 +131,3 @@ class DSARevisionLogResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-# ---------------------------------------------------------------------------
-# AI responses
-# ---------------------------------------------------------------------------
-
-class DSAHintResponse(BaseModel):
-    hint: str
-
-
-class DSAApproachReviewResponse(BaseModel):
-    review: str

@@ -43,16 +43,6 @@ export const dsaApi = {
     const { data } = await apiClient.put(`/dsa/progress/${progressId}`, update);
     return data;
   },
-
-  getHint: async (progressId: string): Promise<{ hint: string }> => {
-    const { data } = await apiClient.post(`/dsa/progress/${progressId}/hint`);
-    return data;
-  },
-
-  reviewApproach: async (progressId: string): Promise<{ review: string }> => {
-    const { data } = await apiClient.post(`/dsa/progress/${progressId}/review`);
-    return data;
-  },
 };
 
 // ============================================================================

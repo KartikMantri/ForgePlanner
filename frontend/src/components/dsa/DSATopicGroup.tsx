@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, CheckCircle2, Circle, PlayCircle, RefreshCw, Hexagon } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { DSATopicGroup as TopicGroupType, DSASheetRow } from '../../types';
 
 interface Props {
   group: TopicGroupType;
   onRowClick: (row: DSASheetRow) => void;
   onToggleStatus: (row: DSASheetRow) => void;
+  onToggleDifficulty: (row: DSASheetRow) => void;
   defaultExpanded?: boolean;
 }
 
-export function DSATopicGroup({ group, onRowClick, onToggleStatus, defaultExpanded = false }: Props) {
+export function DSATopicGroup({ group, onRowClick, onToggleStatus, onToggleDifficulty, defaultExpanded = false }: Props) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'solved': return <div className="w-5 h-5 rounded-full border-2 border-[#4ADE80] bg-[#4ADE80] shadow-[0_0_10px_rgba(74,222,128,0.8)] animate-pulse" />;
-      case 'attempted': return <PlayCircle className="w-5 h-5 text-yellow-400" />;
-      case 'revision': return <RefreshCw className="w-5 h-5 text-[var(--color-arc-cyan)]" />;
-      default: return <Hexagon className="w-5 h-5 text-white/20" />;
+      case 'solved': return 'text-[#4ADE80] border-[#4ADE80]/30';
+      case 'attempted': return 'text-yellow-400 border-yellow-400/30';
+      case 'revision': return 'text-[var(--color-arc-cyan)] border-[var(--color-arc-cyan)]/30';
+      default: return 'text-white/40 border-white/10';
     }
   };
 
@@ -83,31 +84,34 @@ export function DSATopicGroup({ group, onRowClick, onToggleStatus, defaultExpand
                     onClick={() => onRowClick(row)}
                     className="group/row px-8 py-3 flex items-center justify-between border-b border-[var(--color-arc-cyan)]/5 last:border-0 hover:bg-[var(--color-arc-cyan)]/10 cursor-pointer transition-all hover:pl-10"
                   >
-                    <div className="flex items-center gap-5">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); onToggleStatus(row); }}
-                        className="p-1 -ml-1 hover:scale-110 transition-transform"
-                        title="Click to cycle status"
-                      >
-                        {getStatusIcon(row.status)}
-                      </button>
-                      <div>
-                        <div className="text-sm font-medium font-mono text-white/80 group-hover/row:text-[var(--color-arc-cyan)] transition-colors">
-                          {row.problem.title}
-                        </div>
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="text-sm font-medium font-mono text-white/80 group-hover/row:text-[var(--color-arc-cyan)] transition-colors truncate">
+                        {row.problem.title}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onToggleStatus(row); }}
+                          title="Click to cycle status"
+                          className={`px-2 py-0.5 rounded-sm border text-[10px] font-display font-bold uppercase tracking-widest bg-black/50 hover:scale-105 transition-transform ${getStatusColor(row.status)}`}
+                        >
+                          {row.status}
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onToggleDifficulty(row); }}
+                          title="Click to cycle difficulty"
+                          className={`px-2 py-0.5 rounded-sm border text-[10px] font-display font-bold uppercase tracking-widest bg-black/50 hover:scale-105 transition-transform ${getDifficultyColor(row.my_difficulty)}`}
+                        >
+                          {row.my_difficulty || 'UNRATED'}
+                        </button>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-shrink-0">
                       {row.revision_flag && (
                         <span className="px-2 py-0.5 rounded-sm text-[10px] font-display font-bold border border-red-500/50 text-red-400 bg-red-500/10 uppercase tracking-widest">
                           REVISION
                         </span>
                       )}
-                      
-                      <span className={`px-2 py-0.5 rounded-sm border text-[10px] font-display font-bold uppercase tracking-widest bg-black/50 ${getDifficultyColor(row.my_difficulty)}`}>
-                        {row.my_difficulty || 'UNRATED'}
-                      </span>
                     </div>
                   </div>
                 ))}

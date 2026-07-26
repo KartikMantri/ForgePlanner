@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { X } from 'lucide-react';
 import { Step1Template, Step2Resources, Step3Availability, Step4Milestones, Step5AIAnalyzer, Step6Done } from './WizardSteps';
 import { goalsApi, resourcesApi } from '../../services/api';
 
@@ -24,7 +25,13 @@ const DEFAULT_TEMPLATE: GoalTemplate = {
   isDSA: true,
 };
 
-export default function OnboardingWizard({ onComplete }: { onComplete: (id: string, type: string) => void }) {
+export default function OnboardingWizard({
+  onComplete,
+  onClose,
+}: {
+  onComplete: (id: string, type: string) => void;
+  onClose: () => void;
+}) {
   const [step, setStep] = useState(1);
 
   const next = () => setStep(s => Math.min(6, s + 1));
@@ -82,12 +89,26 @@ export default function OnboardingWizard({ onComplete }: { onComplete: (id: stri
     }
   };
 
+  const handleClose = () => {
+    if (step > 1 && !window.confirm('Leave setup? Your progress on this goal will be lost.')) return;
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-background border border-border shadow-2xl rounded-2xl w-full max-w-2xl sm:max-w-3xl overflow-hidden glass max-h-[90vh] flex flex-col">
+      <div className="relative bg-background border border-border shadow-2xl rounded-2xl w-full max-w-2xl sm:max-w-3xl overflow-hidden glass max-h-[90vh] flex flex-col">
+
+        {/* Close — back to main menu */}
+        <button
+          onClick={handleClose}
+          aria-label="Close and return to main menu"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-2 rounded-full bg-background/80 border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        >
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
+        </button>
 
         {/* Progress Header */}
-        <div className="bg-muted/30 border-b border-border p-3 sm:p-6 overflow-x-auto">
+        <div className="bg-muted/30 border-b border-border p-3 pr-12 sm:p-6 sm:pr-16 overflow-x-auto">
           <div className="flex items-center justify-between min-w-max sm:min-w-0">
             {STEPS.map((label, index) => {
               const currentNum = index + 1;

@@ -103,16 +103,29 @@ export default function DSASheet() {
   }
 
   const handleToggleStatus = (row: DSASheetRow) => {
-    const nextStatus = 
+    const nextStatus =
       row.status === 'unsolved' ? 'attempted' :
       row.status === 'attempted' ? 'solved' :
       row.status === 'solved' ? 'revision' : 'unsolved';
-      
+
     updateProgress(row.progress_id, { status: nextStatus });
-    
+
     // Keep drawer in sync if it's currently open
     if (activeRow?.progress_id === row.progress_id) {
       setActiveRow({ ...activeRow, status: nextStatus });
+    }
+  };
+
+  const handleToggleDifficulty = (row: DSASheetRow) => {
+    const nextDifficulty =
+      row.my_difficulty === 'easy' ? 'medium' :
+      row.my_difficulty === 'medium' ? 'hard' : 'easy';
+
+    updateProgress(row.progress_id, { my_difficulty: nextDifficulty });
+
+    // Keep drawer in sync if it's currently open
+    if (activeRow?.progress_id === row.progress_id) {
+      setActiveRow({ ...activeRow, my_difficulty: nextDifficulty });
     }
   };
 
@@ -166,6 +179,7 @@ export default function DSASheet() {
               group={group}
               onRowClick={setActiveRow}
               onToggleStatus={handleToggleStatus}
+              onToggleDifficulty={handleToggleDifficulty}
               defaultExpanded={i === 0}
             />
           ))
