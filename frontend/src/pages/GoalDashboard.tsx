@@ -638,7 +638,39 @@ export default function GoalDashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(204,0,0,0.05)_2px,transparent_2px)] [background-size:16px_16px] pointer-events-none z-0"></div>
         
         {/* Header - Stark/Spider Tech Theme */}
-        <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-md border-b border-[var(--color-spider-red)]/50 shadow-[0_5px_30px_rgba(204,0,0,0.25)] relative px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between overflow-hidden overflow-x-auto\">\n          {/* Tech grid overlay */}\n          <div className=\"absolute inset-0 bg-[linear-gradient(rgba(204,0,0,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(204,0,0,0.15)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0\"></div>\n          <div className=\"absolute inset-0 bg-gradient-to-r from-black via-transparent to-black pointer-events-none z-0\"></div>\n          \n          <div className=\"flex items-center gap-2 sm:gap-4 relative z-10 min-w-0\">\n            <button\n              onClick={() => navigate('/')}\n              className=\"p-1.5 sm:p-2 hover:bg-[var(--color-spider-red)]/20 rounded-full transition-colors text-white border border-transparent hover:border-[var(--color-spider-red)]/50 flex-shrink-0\"\n            >\n              <ArrowLeft className=\"w-4 h-4 sm:w-5 sm:h-5\" />\n            </button>\n            <div className=\"w-8 h-8 sm:w-10 sm:h-10 border border-[var(--color-spider-red)] rounded-full flex items-center justify-center transition-colors relative overflow-hidden group-hover:shadow-[0_0_15px_rgba(204,0,0,0.8)] flex-shrink-0\">\n              <img src=\"/forge-logo.png\" alt=\"Forge Logo\" className=\"w-full h-full object-cover rounded-full\" />\n            </div>\n          <div className=\"min-w-0 flex-1\">\n            <div className=\"flex items-center gap-1 sm:gap-2 flex-wrap\">\n              <span className=\"px-1.5 sm:px-2 py-0.5 rounded-sm text-[10px] sm:text-xs font-black uppercase bg-black text-white border-2 border-black shadow-[2px_2px_0_rgba(255,255,255,0.5)] flex-shrink-0\">\n                {goal?.category ?? 'Goal'}\n              </span>\n              <span className=\"w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0\" />\n            </div>\n            <h1 className=\"text-base sm:text-2xl font-black font-military text-white uppercase text-shadow-comic tracking-tight truncate\">\n              {goalLoading ? '...' : (goal?.title ?? 'My Goal')}\n            </h1>\n          </div>\n        </div>\n\n        <div className=\"flex items-center gap-2 sm:gap-3 flex-shrink-0\">\n          <div className=\"text-right mr-1 sm:mr-2 hidden sm:block\">\n            <div className=\"text-[10px] sm:text-xs text-white/60\">Health</div>\n            <div className={`text-base sm:text-xl font-black ${healthColor}`}>{healthScore}%</div>\n          </div>"
+        <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-md border-b border-[var(--color-spider-red)]/50 shadow-[0_5px_30px_rgba(204,0,0,0.25)] relative px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between overflow-hidden overflow-x-auto">
+          {/* Tech grid overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(204,0,0,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(204,0,0,0.15)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black pointer-events-none z-0"></div>
+
+          <div className="flex items-center gap-2 sm:gap-4 relative z-10 min-w-0">
+            <button
+              onClick={() => navigate('/')}
+              className="p-1.5 sm:p-2 hover:bg-[var(--color-spider-red)]/20 rounded-full transition-colors text-white border border-transparent hover:border-[var(--color-spider-red)]/50 flex-shrink-0"
+            >
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 border border-[var(--color-spider-red)] rounded-full flex items-center justify-center transition-colors relative overflow-hidden group-hover:shadow-[0_0_15px_rgba(204,0,0,0.8)] flex-shrink-0">
+              <img src="/forge-logo.png" alt="Forge Logo" className="w-full h-full object-cover rounded-full" />
+            </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-sm text-[10px] sm:text-xs font-black uppercase bg-black text-white border-2 border-black shadow-[2px_2px_0_rgba(255,255,255,0.5)] flex-shrink-0">
+                {goal?.category ?? 'Goal'}
+              </span>
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+            </div>
+            <h1 className="text-base sm:text-2xl font-black font-military text-white uppercase text-shadow-comic tracking-tight truncate">
+              {goalLoading ? '...' : (goal?.title ?? 'My Goal')}
+            </h1>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="text-right mr-1 sm:mr-2 hidden sm:block">
+            <div className="text-[10px] sm:text-xs text-white/60">Health</div>
+            <div className={`text-base sm:text-xl font-black ${healthColor}`}>{healthScore}%</div>
+          </div>
 
           {/* Three-dot menu */}
           <div className="relative" ref={menuRef}>
