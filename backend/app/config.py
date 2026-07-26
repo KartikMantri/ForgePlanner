@@ -17,11 +17,6 @@ class Settings(BaseSettings):
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.FRONTEND_URL.split(",") if origin.strip()]
 
-    # ── AI Keys ───────────────────────────────────────────────────────────────
-    # Gemini is primary; Groq is automatic fallback if Gemini fails or key missing
-    GEMINI_API_KEY: str = ""
-    GROQ_API_KEY: str = ""
-
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

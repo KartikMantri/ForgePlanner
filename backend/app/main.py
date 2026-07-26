@@ -39,11 +39,4 @@ app.include_router(milestones.router)
 # ── Health check ──────────────────────────────────────────────────────────────
 @app.get("/health", tags=["health"])
 async def health_check():
-    return {
-        "status": "healthy",
-        "version": "0.2.0",
-        "ai": {
-            "gemini": bool(settings.GEMINI_API_KEY),
-            "groq": bool(settings.GROQ_API_KEY),
-        },
-    }
+    return {"status": "healthy", "version": "0.2.0"}
