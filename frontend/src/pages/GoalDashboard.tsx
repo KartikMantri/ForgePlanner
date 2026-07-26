@@ -645,7 +645,7 @@ export default function GoalDashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(204,0,0,0.05)_2px,transparent_2px)] [background-size:16px_16px] pointer-events-none z-0"></div>
         
         {/* Header - Stark/Spider Tech Theme */}
-        <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-md border-b border-[var(--color-spider-red)]/50 shadow-[0_5px_30px_rgba(204,0,0,0.25)] relative px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between overflow-hidden overflow-x-auto">
+        <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-md border-b border-[var(--color-spider-red)]/50 shadow-[0_5px_30px_rgba(204,0,0,0.25)] relative px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           {/* Tech grid overlay */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(204,0,0,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(204,0,0,0.15)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black pointer-events-none z-0"></div>
