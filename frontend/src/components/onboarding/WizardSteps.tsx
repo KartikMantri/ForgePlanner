@@ -146,7 +146,7 @@ export const Step2Resources = ({
 }: {
   next: () => void;
   back: () => void;
-  setContextText: (t: string) => void;
+  setContextText: React.Dispatch<React.SetStateAction<string>>;
   resources: { filename: string; url: string; fileType: 'url' | 'pdf' | 'txt' }[];
   setResources: React.Dispatch<React.SetStateAction<{ filename: string; url: string; fileType: 'url' | 'pdf' | 'txt' }[]>>;
 }) => {
