@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
@@ -40,9 +41,11 @@ async def list_resources(goal_id: str, user_id: UUID = Depends(get_current_user_
     """Fetch all resources for a goal."""
     db = get_supabase_client()
     try:
-        _assert_goal_owned(db, goal_id, user_id)
-        res = db.table("resources").select("*").eq("goal_id", goal_id).order("uploaded_at", desc=True).execute()
-        return res.data or []
+        def _run():
+            _assert_goal_owned(db, goal_id, user_id)
+            res = db.table("resources").select("*").eq("goal_id", goal_id).order("uploaded_at", desc=True).execute()
+            return res.data or []
+        return await run_in_threadpool(_run)
     except HTTPException:
         raise
     except Exception as e:
@@ -54,14 +57,16 @@ async def create_resource(data: ResourceCreate, user_id: UUID = Depends(get_curr
     """Add a new resource link or file reference to a goal."""
     db = get_supabase_client()
     try:
-        _assert_goal_owned(db, data.goal_id, user_id)
-        res = db.table("resources").insert({
-            "goal_id": data.goal_id,
-            "filename": data.filename,
-            "file_path": data.url or "",
-            "file_type": data.file_type
-        }).execute()
-        return res.data[0]
+        def _run():
+            _assert_goal_owned(db, data.goal_id, user_id)
+            res = db.table("resources").insert({
+                "goal_id": data.goal_id,
+                "filename": data.filename,
+                "file_path": data.url or "",
+                "file_type": data.file_type
+            }).execute()
+            return res.data[0]
+        return await run_in_threadpool(_run)
     except HTTPException:
         raise
     except Exception as e:
@@ -73,8 +78,10 @@ async def delete_resource(resource_id: str, user_id: UUID = Depends(get_current_
     """Delete a resource."""
     db = get_supabase_client()
     try:
-        _assert_resource_owned(db, resource_id, user_id)
-        db.table("resources").delete().eq("id", resource_id).execute()
+        def _run():
+            _assert_resource_owned(db, resource_id, user_id)
+            db.table("resources").delete().eq("id", resource_id).execute()
+        await run_in_threadpool(_run)
         return {"ok": True}
     except HTTPException:
         raise

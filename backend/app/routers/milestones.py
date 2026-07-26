@@ -1,5 +1,6 @@
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
@@ -48,14 +49,16 @@ async def create_milestone(data: MilestoneCreate, user_id: UUID = Depends(get_cu
     """Create a new milestone for a goal."""
     db = get_supabase_client()
     try:
-        _assert_goal_owned(db, data.goal_id, user_id)
-        res = db.table("milestones").insert({
-            "goal_id": data.goal_id,
-            "title": data.title,
-            "target_date": data.target_date,
-            "status": data.status,
-        }).execute()
-        return res.data[0]
+        def _run():
+            _assert_goal_owned(db, data.goal_id, user_id)
+            res = db.table("milestones").insert({
+                "goal_id": data.goal_id,
+                "title": data.title,
+                "target_date": data.target_date,
+                "status": data.status,
+            }).execute()
+            return res.data[0]
+        return await run_in_threadpool(_run)
     except HTTPException:
         raise
     except Exception as e:
@@ -67,20 +70,22 @@ async def update_milestone(milestone_id: str, data: MilestoneUpdate, user_id: UU
     """Update a milestone's title, date, or status."""
     db = get_supabase_client()
     try:
-        _assert_milestone_owned(db, milestone_id, user_id)
+        def _run():
+            _assert_milestone_owned(db, milestone_id, user_id)
 
-        update_data: dict = {"updated_at": datetime.utcnow().isoformat()}
-        if data.title is not None:
-            update_data["title"] = data.title
-        if data.target_date is not None:
-            update_data["target_date"] = data.target_date
-        if data.status is not None:
-            update_data["status"] = data.status
+            update_data: dict = {"updated_at": datetime.utcnow().isoformat()}
+            if data.title is not None:
+                update_data["title"] = data.title
+            if data.target_date is not None:
+                update_data["target_date"] = data.target_date
+            if data.status is not None:
+                update_data["status"] = data.status
 
-        res = db.table("milestones").update(update_data).eq("id", milestone_id).execute()
-        if not res.data:
-            raise HTTPException(status_code=404, detail="Milestone not found")
-        return res.data[0]
+            res = db.table("milestones").update(update_data).eq("id", milestone_id).execute()
+            if not res.data:
+                raise HTTPException(status_code=404, detail="Milestone not found")
+            return res.data[0]
+        return await run_in_threadpool(_run)
     except HTTPException:
         raise
     except Exception as e:
@@ -92,8 +97,10 @@ async def delete_milestone(milestone_id: str, user_id: UUID = Depends(get_curren
     """Delete a milestone."""
     db = get_supabase_client()
     try:
-        _assert_milestone_owned(db, milestone_id, user_id)
-        db.table("milestones").delete().eq("id", milestone_id).execute()
+        def _run():
+            _assert_milestone_owned(db, milestone_id, user_id)
+            db.table("milestones").delete().eq("id", milestone_id).execute()
+        await run_in_threadpool(_run)
     except HTTPException:
         raise
     except Exception as e:

@@ -1,6 +1,7 @@
 
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from typing import List, Optional
 from uuid import UUID
@@ -54,7 +55,9 @@ def _seed_dsa_background(goal_id: str, user_id: str) -> None:
 async def list_goals(user_id: UUID = Depends(get_current_user_id)):
     db = get_supabase_client()
     try:
-        res = db.table("goals").select("*").eq("user_id", str(user_id)).execute()
+        def _run():
+            return db.table("goals").select("*").eq("user_id", str(user_id)).execute()
+        res = await run_in_threadpool(_run)
         return res.data or []
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -64,14 +67,16 @@ async def list_goals(user_id: UUID = Depends(get_current_user_id)):
 async def get_goal(goal_id: str, user_id: UUID = Depends(get_current_user_id)):
     db = get_supabase_client()
     try:
-        res = (
-            db.table("goals")
-            .select("*, milestones(*)")
-            .eq("id", goal_id)
-            .eq("user_id", str(user_id))
-            .maybe_single()
-            .execute()
-        )
+        def _run():
+            return (
+                db.table("goals")
+                .select("*, milestones(*)")
+                .eq("id", goal_id)
+                .eq("user_id", str(user_id))
+                .maybe_single()
+                .execute()
+            )
+        res = await run_in_threadpool(_run)
         if not res.data:
             raise HTTPException(status_code=404, detail="Goal not found")
         return res.data
@@ -89,29 +94,34 @@ async def create_goal(
 ):
     db = get_supabase_client()
     try:
-        # Create goal
-        goal_res = db.table("goals").insert({
-            "user_id": str(user_id),
-            "title": data.title,
-            "category": data.category,
-            "type": data.type,
-            "start_date": data.start_date,
-            "end_date": data.end_date,
-            "status": "active",
-        }).execute()
+        def _run():
+            # Create goal
+            goal_res = db.table("goals").insert({
+                "user_id": str(user_id),
+                "title": data.title,
+                "category": data.category,
+                "type": data.type,
+                "start_date": data.start_date,
+                "end_date": data.end_date,
+                "status": "active",
+            }).execute()
 
-        goal = goal_res.data[0]
-        goal_id = goal["id"]
+            goal = goal_res.data[0]
+            goal_id = goal["id"]
 
-        # Insert milestones
-        if data.milestones:
-            milestones_data = [
-                {"goal_id": goal_id, "title": m.title, "target_date": m.target_date}
-                for m in data.milestones
-                if m.title and m.target_date
-            ]
-            if milestones_data:
-                db.table("milestones").insert(milestones_data).execute()
+            # Insert milestones
+            if data.milestones:
+                milestones_data = [
+                    {"goal_id": goal_id, "title": m.title, "target_date": m.target_date}
+                    for m in data.milestones
+                    if m.title and m.target_date
+                ]
+                if milestones_data:
+                    db.table("milestones").insert(milestones_data).execute()
+
+            return goal_id
+
+        goal_id = await run_in_threadpool(_run)
 
         # For DSA goals: seed the Striver A-Z sheet in the background
         # so it's ready by the time the user opens the DSA tab.
@@ -130,7 +140,9 @@ async def delete_goal(goal_id: str, user_id: UUID = Depends(get_current_user_id)
     """Delete a goal and all related data (cascade handled by DB FK constraints)."""
     db = get_supabase_client()
     try:
-        res = db.table("goals").delete().eq("id", goal_id).eq("user_id", str(user_id)).execute()
+        def _run():
+            return db.table("goals").delete().eq("id", goal_id).eq("user_id", str(user_id)).execute()
+        res = await run_in_threadpool(_run)
         if not res.data:
             raise HTTPException(status_code=404, detail="Goal not found or not yours")
     except HTTPException:
