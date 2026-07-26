@@ -282,11 +282,12 @@ class DSAService:
                 {"progress_id": str(progress_id)}
             ).execute()
 
+        self.db.table("dsa_user_progress").update(update_dict).eq("id", str(progress_id)).execute()
+
         result = (
             self.db.table("dsa_user_progress")
-            .update(update_dict)
-            .eq("id", str(progress_id))
             .select("*, dsa_problems(*)")
+            .eq("id", str(progress_id))
             .execute()
         )
         return self._build_progress_response(result.data[0])
