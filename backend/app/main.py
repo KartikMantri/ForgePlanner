@@ -22,6 +22,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
+    # Also allow Vercel preview deployments (e.g. forge-planener-<hash>-<team>.vercel.app),
+    # which get a unique URL per build and can't be listed statically. Safe since every
+    # endpoint still requires a valid Supabase JWT regardless of origin.
+    allow_origin_regex=r"https://forge-planener(-[a-z0-9-]+)?-kartikmantris-projects\.vercel\.app",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
