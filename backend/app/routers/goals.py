@@ -78,7 +78,7 @@ async def get_goal(goal_id: str, user_id: UUID = Depends(get_current_user_id)):
                 .execute()
             )
         res = await run_in_threadpool(_run)
-        if not res.data:
+        if not res or not res.data:
             raise HTTPException(status_code=404, detail="Goal not found")
         return res.data
     except HTTPException:

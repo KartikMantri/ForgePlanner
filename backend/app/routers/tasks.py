@@ -28,7 +28,7 @@ class TaskUpdate(BaseModel):
 
 def _assert_goal_owned(db, goal_id: str, user_id: UUID) -> None:
     res = db.table("goals").select("id").eq("id", goal_id).eq("user_id", str(user_id)).maybe_single().execute()
-    if not res.data:
+    if not res or not res.data:
         raise HTTPException(status_code=404, detail="Goal not found")
 
 
@@ -40,8 +40,9 @@ def _assert_task_owned(db, task_id: str, user_id: UUID) -> None:
         .maybe_single()
         .execute()
     )
-    owner = ((res.data or {}).get("milestones") or {}).get("goals", {}).get("user_id")
-    if not res.data or owner != str(user_id):
+    data = res.data if res else None
+    owner = ((data or {}).get("milestones") or {}).get("goals", {}).get("user_id")
+    if not data or owner != str(user_id):
         raise HTTPException(status_code=404, detail="Task not found")
 
 
