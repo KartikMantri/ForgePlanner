@@ -5,10 +5,12 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from uuid import UUID
+import logging
 
 from app.database.client import get_supabase_client
 from app.auth import get_current_user_id
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/milestones", tags=["milestones"])
 
 
@@ -62,7 +64,8 @@ async def create_milestone(data: MilestoneCreate, user_id: UUID = Depends(get_cu
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in milestones router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.put("/{milestone_id}")
@@ -89,7 +92,8 @@ async def update_milestone(milestone_id: str, data: MilestoneUpdate, user_id: UU
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in milestones router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.delete("/{milestone_id}", status_code=204)
@@ -104,4 +108,5 @@ async def delete_milestone(milestone_id: str, user_id: UUID = Depends(get_curren
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in milestones router")
+        raise HTTPException(status_code=500, detail="Internal server error")

@@ -4,9 +4,12 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from uuid import UUID
+import logging
 
 from app.database.client import get_supabase_client
 from app.auth import get_current_user_id
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/tasks", tags=["tasks"])
 
@@ -59,7 +62,8 @@ async def list_tasks(goal_id: str, user_id: UUID = Depends(get_current_user_id))
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in tasks router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("")
@@ -96,7 +100,8 @@ async def create_task(data: TaskCreate, user_id: UUID = Depends(get_current_user
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in tasks router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.put("/{task_id}")
@@ -125,7 +130,8 @@ async def update_task(task_id: str, data: TaskUpdate, user_id: UUID = Depends(ge
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in tasks router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.delete("/{task_id}")
@@ -141,4 +147,5 @@ async def delete_task(task_id: str, user_id: UUID = Depends(get_current_user_id)
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in tasks router")
+        raise HTTPException(status_code=500, detail="Internal server error")

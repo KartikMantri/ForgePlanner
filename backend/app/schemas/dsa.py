@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 from datetime import date, datetime
 from uuid import UUID
 
@@ -25,14 +25,8 @@ class DSAProblemResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 class DSAProgressUpdate(BaseModel):
-    status: Optional[str] = Field(
-        None,
-        description="One of: unsolved | attempted | solved | revision",
-    )
-    my_difficulty: Optional[str] = Field(
-        None,
-        description="One of: easy | medium | hard",
-    )
+    status: Optional[Literal["unsolved", "attempted", "solved", "revision"]] = None
+    my_difficulty: Optional[Literal["easy", "medium", "hard"]] = None
     time_taken_mins: Optional[int] = Field(None, ge=0)
     solved_at: Optional[date] = None
     submission_link: Optional[str] = None

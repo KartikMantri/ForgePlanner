@@ -3,10 +3,12 @@ from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
+import logging
 
 from app.database.client import get_supabase_client
 from app.auth import get_current_user_id
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/resources", tags=["resources"])
 
 
@@ -49,7 +51,8 @@ async def list_resources(goal_id: str, user_id: UUID = Depends(get_current_user_
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in resources router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("")
@@ -70,7 +73,8 @@ async def create_resource(data: ResourceCreate, user_id: UUID = Depends(get_curr
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in resources router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.delete("/{resource_id}")
@@ -86,4 +90,5 @@ async def delete_resource(resource_id: str, user_id: UUID = Depends(get_current_
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in resources router")
+        raise HTTPException(status_code=500, detail="Internal server error")

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from uuid import UUID
+import logging
 
 from app.schemas.dsa import (
     DSAProgressUpdate,
@@ -14,6 +15,7 @@ from app.database.client import get_supabase_client
 from app.utils.exceptions import NotFoundError
 from app.auth import get_current_user_id
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/dsa", tags=["dsa"])
 
 
@@ -41,7 +43,8 @@ async def seed_dsa_sheet(
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error seeding DSA sheet")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ── Sheet ─────────────────────────────────────────────────────────────────────
@@ -122,7 +125,8 @@ async def update_progress(
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.exception("Unhandled error updating DSA progress")
+        raise HTTPException(status_code=400, detail="Invalid update")
 
 
 # ── Revision Log ──────────────────────────────────────────────────────────────

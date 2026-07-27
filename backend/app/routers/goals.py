@@ -60,7 +60,8 @@ async def list_goals(user_id: UUID = Depends(get_current_user_id)):
         res = await run_in_threadpool(_run)
         return res.data or []
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in goals router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/{goal_id}")
@@ -83,7 +84,8 @@ async def get_goal(goal_id: str, user_id: UUID = Depends(get_current_user_id)):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in goals router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("")
@@ -132,7 +134,8 @@ async def create_goal(
         return {"id": goal_id}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in goals router")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.delete("/{goal_id}", status_code=204)
@@ -148,4 +151,5 @@ async def delete_goal(goal_id: str, user_id: UUID = Depends(get_current_user_id)
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unhandled error in goals router")
+        raise HTTPException(status_code=500, detail="Internal server error")
