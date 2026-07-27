@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: forge-backend
-    env: docker
-    branch: main
-    dockerfilePath: backend/Dockerfile
-    autoDeploy: true

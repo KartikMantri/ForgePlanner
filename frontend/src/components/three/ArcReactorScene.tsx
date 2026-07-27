@@ -55,8 +55,11 @@ export default function ArcReactorScene({ children, revealAt = 0.3 }: Props) {
 
   if (lowPower) {
     return (
-      <section className="relative w-full min-h-[100vh] flex items-center justify-center bg-black overflow-hidden">
+      <section className="relative w-full min-h-[100vh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,212,255,0.15),transparent_60%)]" />
+        <h1 className="relative z-10 mb-8 font-display font-black text-4xl sm:text-5xl text-white tracking-tighter drop-shadow-[0_0_20px_rgba(0,212,255,0.5)]">
+          FORGE PLANNER
+        </h1>
         <div className="relative z-10 w-full">{children}</div>
       </section>
     );
@@ -73,6 +76,16 @@ export default function ArcReactorScene({ children, revealAt = 0.3 }: Props) {
 
         <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,212,255,0.06)_2px,transparent_2px)] [background-size:20px_20px] pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none" />
+
+        <div
+          className={`absolute top-16 sm:top-20 left-1/2 -translate-x-1/2 z-10 transition-opacity duration-500 ${
+            revealed ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          <h1 className="font-display font-black text-3xl sm:text-5xl text-white tracking-tighter text-center drop-shadow-[0_0_20px_rgba(0,212,255,0.5)] whitespace-nowrap">
+            FORGE PLANNER
+          </h1>
+        </div>
 
         <div
           className={`relative z-10 w-full px-6 transition-all duration-700 ${
