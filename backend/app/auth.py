@@ -8,11 +8,14 @@ which pairs with asymmetric (JWKS-based) JWT signing.
 """
 
 import jwt
+import logging
 from fastapi import Header, HTTPException
 from functools import lru_cache
 from uuid import UUID
 
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache()
@@ -35,5 +38,6 @@ def get_current_user_id(authorization: str = Header(None)) -> UUID:
             audience="authenticated",
         )
         return UUID(payload["sub"])
-    except (jwt.PyJWTError, KeyError, ValueError):
+    except (jwt.PyJWTError, KeyError, ValueError) as e:
+        logger.warning(f"Token verification failed: {type(e).__name__}: {e} | SUPABASE_URL={settings.SUPABASE_URL}")
         raise HTTPException(status_code=401, detail="Invalid or expired token")
