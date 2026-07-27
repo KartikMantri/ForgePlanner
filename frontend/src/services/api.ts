@@ -30,11 +30,21 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Bounce to login on an expired/invalid session
+// On a 401, try one silent session refresh + retry before giving up.
+// Supabase's background auto-refresh can occasionally lose the race (e.g. in
+// Incognito, where timer/storage behavior differs), leaving a stale access
+// token in place even though the session is still otherwise valid.
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401 && window.location.pathname !== '/login') {
+  async (error) => {
+    const original = error.config;
+    if (error.response?.status === 401 && !original?._retried && window.location.pathname !== '/login') {
+      original._retried = true;
+      const { data, error: refreshError } = await supabase.auth.refreshSession();
+      if (data.session && !refreshError) {
+        original.headers.Authorization = `Bearer ${data.session.access_token}`;
+        return apiClient(original);
+      }
       window.location.href = '/login';
     }
     return Promise.reject(error);
